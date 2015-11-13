@@ -8,10 +8,13 @@
 #ifndef MAINCLASS_H_
 #define MAINCLASS_H_
 
+#include "Logger.h"
+
 class MainClass {
 public:
 	MainClass();
 	virtual ~MainClass();
+	Logger *logger;
 };
 
 #endif /* MAINCLASS_H_ */
