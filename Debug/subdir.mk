@@ -5,15 +5,21 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../Logger.cpp \
-../MainClass.cpp 
+../MainClass.cpp \
+../RouteEntry.cpp \
+../RoutingTable.cpp 
 
 OBJS += \
 ./Logger.o \
-./MainClass.o 
+./MainClass.o \
+./RouteEntry.o \
+./RoutingTable.o 
 
 CPP_DEPS += \
 ./Logger.d \
-./MainClass.d 
+./MainClass.d \
+./RouteEntry.d \
+./RoutingTable.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

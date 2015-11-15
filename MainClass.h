@@ -9,12 +9,19 @@
 #define MAINCLASS_H_
 
 #include "Logger.h"
+#include "RoutingTable.h"
 
 class MainClass {
 public:
-	MainClass();
-	virtual ~MainClass();
 	Logger *logger;
+	int sockfd;
+	RoutingTable *routingTable;
+
+	MainClass();
+	MainClass(int argc, char *argv[]);
+	virtual ~MainClass();
+	void createAndInitializeRoutingTable(string configFileName,int defaultTtl, int infinityValue);
+	void startServer(int portNum);
 };
 
 #endif /* MAINCLASS_H_ */
