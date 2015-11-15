@@ -4,29 +4,29 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Logger.cpp \
-../MainClass.cpp \
-../RouteEntry.cpp \
-../RoutingTable.cpp 
+../src/Logger.cpp \
+../src/MainClass.cpp \
+../src/RouteEntry.cpp \
+../src/RoutingTable.cpp 
 
 OBJS += \
-./Logger.o \
-./MainClass.o \
-./RouteEntry.o \
-./RoutingTable.o 
+./src/Logger.o \
+./src/MainClass.o \
+./src/RouteEntry.o \
+./src/RoutingTable.o 
 
 CPP_DEPS += \
-./Logger.d \
-./MainClass.d \
-./RouteEntry.d \
-./RoutingTable.d 
+./src/Logger.d \
+./src/MainClass.d \
+./src/RouteEntry.d \
+./src/RoutingTable.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-%.o: ../%.cpp
+src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: GCC C++ Compiler'
-	g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -O3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

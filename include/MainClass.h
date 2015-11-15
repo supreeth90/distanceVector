@@ -8,6 +8,18 @@
 #ifndef MAINCLASS_H_
 #define MAINCLASS_H_
 
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <cstdlib>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <strings.h>
+using namespace std;
+
 #include "Logger.h"
 #include "RoutingTable.h"
 
@@ -20,7 +32,7 @@ public:
 	MainClass();
 	MainClass(int argc, char *argv[]);
 	virtual ~MainClass();
-	void createAndInitializeRoutingTable(string configFileName,int defaultTtl, int infinityValue);
+	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity);
 	void startServer(int portNum);
 };
 

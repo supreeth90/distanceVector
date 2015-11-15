@@ -5,19 +5,10 @@
  *      Author: supreeth
  */
 
-#include "MainClass.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <strings.h>
-#include <sstream>
-
-using namespace std;
+#include "../include/MainClass.h"
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-        ( std::ostringstream() << std::dec << x ) ).str()
+		( std::ostringstream() << std::dec << x ) ).str()
 
 MainClass::MainClass() {
 	// TODO Auto-generated constructor stub
@@ -27,11 +18,25 @@ MainClass::MainClass(int argc, char *argv[]) {
 	// TODO Auto-generated constructor stub
 	logger= new Logger();
 
-	int portNum=atoi(argv[2]);
-	int defaultTtl=atoi(argv[3]);
-	int infinityValue=atoi(argv[4]);
-	startServer(portNum);
-	createAndInitializeRoutingTable(string(argv[1]),defaultTtl,infinityValue);
+	string filename;
+	int port_number, infinity;
+	double ttl, period;
+	bool split_horizon;
+
+
+	filename = argv[1];
+	port_number = std::atoi(argv[2]);
+	ttl = std::atof(argv[3]);
+	infinity = std::atoi(argv[4]);
+	period = std::atof(argv[5]);
+
+
+	if (((std::string)argv[6]).compare("true") == 0){
+		split_horizon = true;
+	}
+	else split_horizon = false;
+	startServer(port_number);
+	createAndInitializeRoutingTable(string(argv[1]),ttl,infinity);
 
 }
 
@@ -39,17 +44,17 @@ MainClass::~MainClass() {
 	// TODO Auto-generated destructor stub
 }
 
-void MainClass::createAndInitializeRoutingTable(string configFileName,int defaultTtl, int infinityValue) {
+void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity) {
 	routingTable=new RoutingTable();
-	routingTable->DEFAULT_TTL=defaultTtl;
-	routingTable->INFINITY_VALUE=infinityValue;
+	routingTable->DEFAULT_TTL=ttl;
+	routingTable->INFINITY_VALUE=infinity;
 	routingTable->initialize(configFileName);
 
 }
 void MainClass::startServer(int portNum) {
 	struct sockaddr_in server_addr;
 	logger->logDebug(SSTR("Starting the node... port:" <<portNum));
-//	logger->logFile.close();
+	//	logger->logFile.close();
 	cout << "Starting the Reliable UDP based File Server at port:" << portNum << endl;
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -79,6 +84,13 @@ int main(int argc, char *argv[]) {
 
 	Logger *logger= new Logger();
 
+	// Check the number of parameters
+	if (argc < 6) {
+
+		std::cerr << "Usage: " << argv[0] << " <Config> <Portnumber> <TTL> <Infinity> <Period> <Split Horizon bool> " << std::endl;
+		return 1;//Description of arguments if less than 6
+	}
+
 	MainClass *main=new MainClass(argc,argv);
 
 	//TODO: Command line arguments input and processing
@@ -90,10 +102,10 @@ int main(int argc, char *argv[]) {
 	// argv[6]	split horizon ("yes" or "no"
 
 
-//	main->startServer(portNum);
+	//	main->startServer(portNum);
 
 
-//	logger->logDebug("Starting the node!!");
+	//	logger->logDebug("Starting the node!!");
 	cout << "Hola amigos!!" << endl;
 
 }
