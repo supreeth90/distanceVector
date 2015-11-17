@@ -16,7 +16,8 @@ public:
 
 	AdEntry();
 	virtual ~AdEntry();
-	char* serializeToCharArray();
+	//char* serializeToCharArray();
+
 };
 
 #endif /* SRC_ADENTRY_H_ */

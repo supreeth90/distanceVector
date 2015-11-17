@@ -28,12 +28,16 @@ public:
 	Logger *logger;
 	int sockfd;
 	RoutingTable *routingTable;
-
+	string filename;
+	int port_number, infinity;
+	double ttl, period;
+	bool split_horizon;
 	MainClass();
 	MainClass(int argc, char *argv[]);
 	virtual ~MainClass();
 	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number);
 	void startServer(int portNum);
+	void BellmanFord(RouteEntryVector graph, int src);
 };
 
 #endif /* MAINCLASS_H_ */

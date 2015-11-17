@@ -132,7 +132,7 @@ void RoutingTable::sendAdvertisement(){
 void RoutingTable::receiveAdvertisement() {
 
 	logger->logDebug(SSTR("In receiveAdvertisement "));
-	int n=0;
+	int n=0, length = 0;
 	char buffer[MAX_PACKET_SIZE];
 	bzero(buffer,MAX_PACKET_SIZE);
 	socklen_t addr_size;
@@ -140,9 +140,9 @@ void RoutingTable::receiveAdvertisement() {
 	addr_size = sizeof(neighborAddress);
 
 	while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
-				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
+				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0) length = length + n;
 	logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
-
+    (new Advertisement())->deserializeToAdvertisement((unsigned char*)buffer, length);
 //	int numOfEntries=n/AD_ENTRY_SIZE;
 
 }
