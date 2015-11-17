@@ -32,7 +32,7 @@ public:
 	MainClass();
 	MainClass(int argc, char *argv[]);
 	virtual ~MainClass();
-	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity);
+	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number);
 	void startServer(int portNum);
 };
 

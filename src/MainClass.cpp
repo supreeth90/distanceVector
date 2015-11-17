@@ -6,6 +6,7 @@
  */
 
 #include "../include/MainClass.h"
+#include <pthread.h>
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
 		( std::ostringstream() << std::dec << x ) ).str()
@@ -36,19 +37,22 @@ MainClass::MainClass(int argc, char *argv[]) {
 	}
 	else split_horizon = false;
 	startServer(port_number);
-	createAndInitializeRoutingTable(string(argv[1]),ttl,infinity);
-
+	createAndInitializeRoutingTable(string(argv[1]),ttl,infinity,port_number);
+	routingTable->sendAdvertisement();
+	routingTable->receiveAdvertisement();
 }
 
 MainClass::~MainClass() {
 	// TODO Auto-generated destructor stub
 }
 
-void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity) {
-	routingTable=new RoutingTable();
+void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number) {
+	logger->logDebug(SSTR("In createAndInitializeRoutingTable " <<ttl << " inf:"<< infinity <<" port:"<< port_number));
+	routingTable=new RoutingTable(sockfd,port_number);
 	routingTable->DEFAULT_TTL=ttl;
 	routingTable->INFINITY_VALUE=infinity;
 	routingTable->initialize(configFileName);
+	routingTable->printRoutingTable();
 
 }
 void MainClass::startServer(int portNum) {
@@ -80,8 +84,17 @@ void MainClass::startServer(int portNum) {
 	cout << "Reliable UDP FileServer started successfully" << endl;
 }
 
+//void MainClass::receiveAds() {
+//
+//	while(1) {
+//		routingTable->receiveAdvertisement();
+//	}
+//
+//
+//}
 int main(int argc, char *argv[]) {
 
+	pthread_t threads[2];
 	Logger *logger= new Logger();
 
 	// Check the number of parameters
@@ -92,6 +105,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	MainClass *main=new MainClass(argc,argv);
+
+//	 for (int i = 0; i < 2; i++) {
+//	    if ((rc = pthread_create(&thr[i], NULL, thr_func, &thr_data[i]))) {
+//
+//	    }
+//	 }
 
 	//TODO: Command line arguments input and processing
 	// argv[1] config file name

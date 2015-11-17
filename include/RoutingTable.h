@@ -17,6 +17,9 @@
 #include <strings.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <time.h>
 #include <sys/time.h>
 #include <vector>
@@ -31,15 +34,19 @@ typedef std::vector<RouteEntry> RouteEntryVector;
 
 class RoutingTable {
 public:
-
+	int sockfd;
+	int portNum;
 	Logger *logger;
 	RouteEntryVector routingTableVector;
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
-	RoutingTable();
+	RoutingTable(int sockfd,int portNum);
 	virtual ~RoutingTable();
 	void addRouteEntry(RouteEntry routeEntry);
 	void initialize(string fileName);
+	void printRoutingTable();
+	void sendAdvertisement();
+	void receiveAdvertisement();
 };
 
 #endif /* ROUTINGTABLE_H_ */
