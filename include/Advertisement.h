@@ -16,6 +16,7 @@ using namespace std;
 const int AD_ENTRY_SIZE=8;
 class Advertisement {
 public:
+	Logger *logger;
 	int numOfEntries;
 	std::vector<AdEntry> adEntryVector;
 	Advertisement();

@@ -8,6 +8,7 @@
 #include "../include/RoutingTable.h"
 #include "../include/Advertisement.h"
 
+
 const int MAX_PACKET_SIZE=1472;
 
 using namespace std;
@@ -92,17 +93,19 @@ void RoutingTable::initialize(string fileName){
 }
 
 void RoutingTable::sendAdvertisement(){
+	cout << "Sending Advertisement" << endl;
 	logger->logDebug(SSTR("In sendAdvertisement"));
 	long currentTime=0;
 	char *adPacket;
 
-	logger->logDebug(SSTR("Entering TTL validation"));
+	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
 	//TTL Validation
 	for(int i=0;i<this->routingTableVector.size();i++) {
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
 		currentTime=(long)tv.tv_sec;
 		if(currentTime > this->routingTableVector.at(i).ttl) {
+			logger->logDebug(SSTR("Current time greater"));
 			this->routingTableVector.at(i).cost=INFINITY_VALUE;
 		}
 	}
@@ -120,29 +123,62 @@ void RoutingTable::sendAdvertisement(){
 			neighborAddress.sin_addr=this->routingTableVector.at(i).destination;
 			neighborAddress.sin_family=AF_INET;
 			neighborAddress.sin_port=htons(portNum);
-			sendto(sockfd, adPacket, advertisement->numOfEntries , 0, (struct sockaddr *) &neighborAddress,
+			sendto(sockfd, adPacket, advertisement->numOfEntries*AD_ENTRY_SIZE , 0, (struct sockaddr *) &neighborAddress,
 							sizeof(neighborAddress));
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
-
 	}
-
 }
+
+void RoutingTable::createThreads() {
+	int threadStatus;
+	if ((threadStatus = pthread_create(&threads[0], NULL,
+			testRun, this))) {
+			cout << "Thread creation failed: " << threadStatus << endl;
+	}
+}
+
+void * RoutingTable::testRun(void * This) {
+
+	RoutingTable *routingTable=(RoutingTable *)This;
+	cout << "Entered testRun" << endl;
+	routingTable->logger->logDebug(SSTR("Entered testRun"));
+	routingTable->receiveAdvertisement();
+	return NULL;
+
+//	 static void * InternalThreadEntryFunc(void * This) {((MyThreadClass *)This)->InternalThreadEntry(); return NULL;}
+}
+
 
 void RoutingTable::receiveAdvertisement() {
 
 	logger->logDebug(SSTR("In receiveAdvertisement "));
-	int n=0, length = 0;
-	char buffer[MAX_PACKET_SIZE];
+	int n=0;
+	unsigned char buffer[MAX_PACKET_SIZE];
 	bzero(buffer,MAX_PACKET_SIZE);
 	socklen_t addr_size;
 	struct sockaddr_in neighborAddress;
 	addr_size = sizeof(neighborAddress);
 
-	while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
-				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0) length = length + n;
-	logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
-    (new Advertisement())->deserializeToAdvertisement((unsigned char*)buffer, length);
-//	int numOfEntries=n/AD_ENTRY_SIZE;
+	while(1) {
+		cout << "Waiting for an Advertisement" << endl;
+		while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
+					(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
+		logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
+	//    (new Advertisement())->deserializeToAdvertisement((unsigned char*)buffer, length);
+	//	int numOfEntries=n/AD_ENTRY_SIZE;
 
+		int numOfEntries=n/AD_ENTRY_SIZE;
+		cout << "numOfEntries in the Ad" << numOfEntries << endl;
+		Advertisement *adv=new Advertisement();
+		adv->deserializeToAdvertisement(buffer,numOfEntries);
+
+		for(int i=0;i<adv->adEntryVector.size();i++) {
+			struct in_addr address;
+			address.s_addr=adv->adEntryVector.at(i).destination;
+			cout << "dest: "<< inet_ntoa(address);
+			logger->logDebug(SSTR("In receiveAdvertisement ::" << address.s_addr << ".." << inet_ntoa(address)));
+			cout << " cost: "<< adv->adEntryVector.at(i).cost << endl;
+		}
+	}
 }

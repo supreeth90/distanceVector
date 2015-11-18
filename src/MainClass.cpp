@@ -30,7 +30,7 @@ MainClass::MainClass(int argc, char *argv[]) {
 		split_horizon = true;
 	}
 	else split_horizon = false;
-
+	sleep(10);
 }
 
 MainClass::~MainClass() {
@@ -44,8 +44,8 @@ void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl
 	routingTable->INFINITY_VALUE=infinity;
 	routingTable->initialize(configFileName);
 	routingTable->printRoutingTable();
-
 }
+
 void MainClass::startServer(int portNum) {
 	struct sockaddr_in server_addr;
 	logger->logDebug(SSTR("Starting the node... port:" <<portNum));
@@ -136,9 +136,6 @@ void MainClass::BellmanFord(RouteEntryVector graph, int src)
 //}
 int main(int argc, char *argv[]) {
 
-	pthread_t threads[2];
-	Logger *logger= new Logger();
-
 	// Check the number of parameters
 	if (argc < 6) {
 
@@ -149,14 +146,13 @@ int main(int argc, char *argv[]) {
 	MainClass *main=new MainClass(argc,argv);
 	main->startServer(main->port_number);
 	main->createAndInitializeRoutingTable(string(argv[1]),main->ttl,main->infinity,main->port_number);
-	main->routingTable->sendAdvertisement();
-    main->routingTable->receiveAdvertisement();
 
-//	 for (int i = 0; i < 2; i++) {
-//	    if ((rc = pthread_create(&thr[i], NULL, thr_func, &thr_data[i]))) {
-//
-//	    }
-//	 }
+	main->routingTable->createThreads();
+
+	while(1) {
+		main->routingTable->sendAdvertisement();
+		sleep(5);
+	}
 
 	//TODO: Command line arguments input and processing
 	// argv[1] config file name

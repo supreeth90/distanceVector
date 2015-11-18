@@ -23,6 +23,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <vector>
+#include <pthread.h>
 
 #include "RouteEntry.h"
 #include "Logger.h"
@@ -34,6 +35,7 @@ typedef std::vector<RouteEntry> RouteEntryVector;
 
 class RoutingTable {
 public:
+	pthread_t threads[2];
 	int sockfd;
 	int portNum;
 	Logger *logger;
@@ -47,6 +49,8 @@ public:
 	void printRoutingTable();
 	void sendAdvertisement();
 	void receiveAdvertisement();
+	void createThreads();
+	static void * testRun(void * This);
 };
 
 #endif /* ROUTINGTABLE_H_ */
