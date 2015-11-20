@@ -25,23 +25,20 @@ MainClass::MainClass(int argc, char *argv[]) {
 	infinity = std::atoi(argv[4]);
 	period = std::atof(argv[5]);
 
-
-	if (((std::string)argv[6]).compare("true") == 0){
+	if (((std::string) argv[6]).compare("true") == 0) {
 		split_horizon = true;
+	} else {
+		split_horizon = false;
 	}
-	else split_horizon = false;
-	sleep(10);
 }
 
 MainClass::~MainClass() {
 	// TODO Auto-generated destructor stub
 }
 
-void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number) {
+void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number,bool split_horizon) {
 	logger->logDebug(SSTR("In createAndInitializeRoutingTable " <<ttl << " inf:"<< infinity <<" port:"<< port_number));
-	routingTable=new RoutingTable(sockfd,port_number);
-	routingTable->DEFAULT_TTL=ttl;
-	routingTable->INFINITY_VALUE=infinity;
+	routingTable=new RoutingTable(sockfd,port_number,ttl,infinity,split_horizon);
 	routingTable->initialize(configFileName);
 	routingTable->printRoutingTable();
 }
@@ -49,12 +46,12 @@ void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl
 void MainClass::startServer(int portNum) {
 	struct sockaddr_in server_addr;
 	logger->logDebug(SSTR("Starting the node... port:" <<portNum));
-	//	logger->logFile.close();
-	cout << "Starting the Reliable UDP based File Server at port:" << portNum << endl;
+	cout << "Starting the Node at port:" << portNum << endl;
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
 	if (sockfd < 0) {
-		cout << "Socket open failure" << endl;
+		logger->logError(SSTR("Socket open failure"));
+		cerr << "Socket open failure" << endl;
 		exit(0);
 	}
 	bzero((char *) &server_addr, sizeof(server_addr));
@@ -70,9 +67,9 @@ void MainClass::startServer(int portNum) {
 	cout << "**Server Binding set to :" << server_addr.sin_addr.s_addr << endl;
 	cout << "**Server Binding set to port:" << server_addr.sin_port << endl;
 	cout << "**Server Binding set to family:" << server_addr.sin_family << endl;
-	//	listen(sfd, 5);
-	logger->logDebug(SSTR("Reliable UDP FileServer started successfully"));
-	cout << "Reliable UDP FileServer started successfully" << endl;
+	logger->logDebug(SSTR("Node started successfully"));
+	cout << "Node started successfully" << endl;
+
 }
 void MainClass::BellmanFord(RouteEntryVector graph, int src)
 {
@@ -142,16 +139,16 @@ int main(int argc, char *argv[]) {
 		std::cerr << "Usage: " << argv[0] << " <Config> <Portnumber> <TTL> <Infinity> <Period> <Split Horizon bool> " << std::endl;
 		return 1;//Description of arguments if less than 6
 	}
-
+	int period=atoi(argv[5]);
 	MainClass *main=new MainClass(argc,argv);
 	main->startServer(main->port_number);
-	main->createAndInitializeRoutingTable(string(argv[1]),main->ttl,main->infinity,main->port_number);
-
+	main->createAndInitializeRoutingTable(string(argv[1]),main->ttl,main->infinity,main->port_number,main->split_horizon);
 	main->routingTable->createThreads();
 
 	while(1) {
 		main->routingTable->sendAdvertisement();
-		sleep(5);
+		cout << "Sleeping for " << period << " s before sending an Ad" << endl;
+		sleep(period);
 	}
 
 	//TODO: Command line arguments input and processing

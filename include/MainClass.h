@@ -35,7 +35,7 @@ public:
 	MainClass();
 	MainClass(int argc, char *argv[]);
 	virtual ~MainClass();
-	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number);
+	void createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number,bool split_horizon);
 	void startServer(int portNum);
 	void BellmanFord(RouteEntryVector graph, int src);
 };

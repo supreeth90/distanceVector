@@ -20,7 +20,7 @@ public:
 	int numOfEntries;
 	std::vector<AdEntry> adEntryVector;
 	Advertisement();
-	void loadAdFromRoutingTable(RoutingTable *routingTable);
+	void loadAdFromRoutingTable(RoutingTable *routingTable,RouteEntry neighborAddress);
 	virtual ~Advertisement();
 	char* serializeToCharArray();
 	void deserializeToAdvertisement(unsigned char *datagramChars, int length);

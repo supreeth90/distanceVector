@@ -36,13 +36,15 @@ typedef std::vector<RouteEntry> RouteEntryVector;
 class RoutingTable {
 public:
 	pthread_t threads[2];
+	pthread_mutex_t rtmutex;
 	int sockfd;
 	int portNum;
 	Logger *logger;
 	RouteEntryVector routingTableVector;
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
-	RoutingTable(int sockfd,int portNum);
+	int splitHorizon;
+	RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon);
 	virtual ~RoutingTable();
 	void addRouteEntry(RouteEntry routeEntry);
 	void initialize(string fileName);

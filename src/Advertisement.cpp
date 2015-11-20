@@ -15,12 +15,19 @@ Advertisement::Advertisement() {
 	logger= new Logger();
 }
 
-void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable) {
+void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntry neighborAddress) {
 	logger->logDebug(SSTR("In loadAdFromRoutingTable"));
 	numOfEntries=routingTable->routingTableVector.size();
 	logger->logDebug(SSTR("numOfEntries In loadAdFromRoutingTable" << numOfEntries));
 	for(int i=0;i<numOfEntries;i++) {
 		AdEntry adEntry;
+		if(routingTable->splitHorizon) {
+			if (neighborAddress.nextHop.s_addr
+					== routingTable->routingTableVector.at(i).destination.s_addr) {
+				//Dont advertise this
+				continue;
+			}
+		}
 		adEntry.destination=(long)routingTable->routingTableVector.at(i).destination.s_addr;
 		adEntry.cost=(long)routingTable->routingTableVector.at(i).cost;
 		this->adEntryVector.push_back(adEntry);

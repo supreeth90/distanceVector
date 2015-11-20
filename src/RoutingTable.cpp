@@ -16,11 +16,14 @@ using namespace std;
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
         ( std::ostringstream() << std::dec << x ) ).str()
 
-RoutingTable::RoutingTable(int sockfd,int portNum) {
+RoutingTable::RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon) {
 	// TODO Auto-generated constructor stub
 	logger= new Logger();
 	this->sockfd=sockfd;
 	this->portNum=portNum;
+	this->DEFAULT_TTL=ttl;
+	this->INFINITY_VALUE=infinityValue;
+	this->splitHorizon=split_horizon;
 }
 
 RoutingTable::~RoutingTable() {
@@ -37,16 +40,14 @@ void RoutingTable::printRoutingTable(){
 	int routingTableSize=this->routingTableVector.size();
 	for(int i=0;i<routingTableSize;i++) {
 		cout << this->routingTableVector.at(i).getFormattedRouteEntry() << endl;
+		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
 	}
 	logger->logDebug(SSTR("End of printRoutingTable "));
 	cout << "End of the routing table" << endl;
 }
 
 void RoutingTable::initialize(string fileName){
-	//TODO:Read the file, parse and create a Route Entry object
 	logger->logDebug(SSTR("Entering initialize with Filename: "<<fileName));
-	INFINITY_VALUE=16;
-	DEFAULT_TTL=120;
 	fstream configFile;
 	string line;
 
@@ -112,12 +113,17 @@ void RoutingTable::sendAdvertisement(){
 
 	logger->logDebug(SSTR("Create and Send the Advertisement"));
 	//Create and Send Ads
-	Advertisement *advertisement=new Advertisement();
-	advertisement->loadAdFromRoutingTable(this);
-	adPacket=advertisement->serializeToCharArray();
+
 	for(int i=0;i<this->routingTableVector.size();i++) {
+
 		//Send the Ads to the neighbors
 		if(this->routingTableVector.at(i).cost == 1) {
+
+			//Get the Advertisement to be sent
+			Advertisement *advertisement=new Advertisement();
+			advertisement->loadAdFromRoutingTable(this,this->routingTableVector.at(i));
+			adPacket=advertisement->serializeToCharArray();
+
 			struct sockaddr_in neighborAddress;
 			bzero((char *) &neighborAddress, sizeof(neighborAddress));
 			neighborAddress.sin_addr=this->routingTableVector.at(i).destination;
@@ -125,12 +131,17 @@ void RoutingTable::sendAdvertisement(){
 			neighborAddress.sin_port=htons(portNum);
 			sendto(sockfd, adPacket, advertisement->numOfEntries*AD_ENTRY_SIZE , 0, (struct sockaddr *) &neighborAddress,
 							sizeof(neighborAddress));
+			free(advertisement);
+			free(adPacket);
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
 	}
 }
 
 void RoutingTable::createThreads() {
+
+	logger->logDebug(SSTR("Creating Receive thread"));
+	pthread_mutex_init(&rtmutex, NULL);
 	int threadStatus;
 	if ((threadStatus = pthread_create(&threads[0], NULL,
 			testRun, this))) {
@@ -139,14 +150,11 @@ void RoutingTable::createThreads() {
 }
 
 void * RoutingTable::testRun(void * This) {
-
 	RoutingTable *routingTable=(RoutingTable *)This;
 	cout << "Entered testRun" << endl;
 	routingTable->logger->logDebug(SSTR("Entered testRun"));
 	routingTable->receiveAdvertisement();
 	return NULL;
-
-//	 static void * InternalThreadEntryFunc(void * This) {((MyThreadClass *)This)->InternalThreadEntry(); return NULL;}
 }
 
 
@@ -165,13 +173,14 @@ void RoutingTable::receiveAdvertisement() {
 		while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
 					(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
 		logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
-	//    (new Advertisement())->deserializeToAdvertisement((unsigned char*)buffer, length);
-	//	int numOfEntries=n/AD_ENTRY_SIZE;
 
 		int numOfEntries=n/AD_ENTRY_SIZE;
 		cout << "numOfEntries in the Ad" << numOfEntries << endl;
 		Advertisement *adv=new Advertisement();
 		adv->deserializeToAdvertisement(buffer,numOfEntries);
+
+		//TODO: Call process Ad to be processed using Bellman-ford algorithm
+		//TODO: Triggered Update happens if there is any update in the routing table
 
 		for(int i=0;i<adv->adEntryVector.size();i++) {
 			struct in_addr address;
