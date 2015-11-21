@@ -7,7 +7,10 @@
 
 #include "../include/RoutingTable.h"
 #include "../include/Advertisement.h"
-
+#include <sys/unistd.h>
+#include <netdb.h>
+#include <iterator>
+#include <stdlib.h>
 
 const int MAX_PACKET_SIZE=1472;
 
@@ -50,11 +53,46 @@ void RoutingTable::initialize(string fileName){
 	logger->logDebug(SSTR("Entering initialize with Filename: "<<fileName));
 	fstream configFile;
 	string line;
+	numOfNodes=0;
 
 	char ipAddress[20]={0},isNeighbor[4]={0};
+	char sourceHostName[30]={0};
+	size_t sourceHostNameLen;
 	configFile.open(fileName.c_str(), ios::in);
 	if (configFile.is_open()) {
 		logger->logDebug(SSTR("Config File open success"));
+
+
+		//TODO: get source Ip somehow
+		struct in_addr source;
+		source.s_addr=0;
+		gethostname(sourceHostName,sourceHostNameLen);
+		struct hostent *he=gethostbyname(sourceHostName);
+		struct in_addr **addr_list;
+
+		addr_list = (struct in_addr **)he->h_addr_list;
+		if(addr_list[0] != NULL) {
+			cout << "Source IP resolved is " << inet_ntoa(*addr_list[0]) << endl;
+			logger->logDebug(SSTR("Source IP Address: " << inet_ntoa(*addr_list[0])));
+			source=*addr_list[0];
+		} else {
+			cerr << "Couldnt resolve source IP" << endl;
+			exit(0);
+		}
+
+
+		hostToIndexMap.insert(make_pair(source.s_addr,numOfNodes+1));
+		RouteEntry *routeEntry=new RouteEntry();
+		routeEntry->destination=source;
+		routeEntry->nextHop=source;
+		routeEntry->cost=0;
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		routeEntry->ttl=(long) tv.tv_sec + 4000000;  // check back how to give infinity
+		//Including my current node
+		numOfNodes++;
+		addRouteEntry(*routeEntry);
+
 		 while ( getline (configFile,line) ) {
 			 logger->logDebug(SSTR("Config File line read: " << line));
 			 sscanf(line.c_str(),"%s %s",ipAddress,isNeighbor);
@@ -85,8 +123,31 @@ void RoutingTable::initialize(string fileName){
 			gettimeofday(&tv, NULL);
 			routeEntry->ttl=(long) tv.tv_sec + DEFAULT_TTL;
 
+			hostToIndexMap.insert(make_pair(destination.s_addr,numOfNodes));
+			numOfNodes++;
 			addRouteEntry(*routeEntry);
 		 }
+
+		 //Initializing graph nodes
+		 graph = new int*[numOfNodes];
+		 for(int i=0;i<numOfNodes;i++) {
+			 graph[i]=new int[numOfNodes];
+		 }
+
+		cout << "Initialized graph table" << endl;
+		for (int j = 0; j < numOfNodes; j++) {
+			for (int k = 0; k < numOfNodes; k++) {
+				if (j == 0) {
+					graph[j][k] = routingTableVector.at(k).cost;
+				} else {
+					graph[j][k] = INFINITY_VALUE;
+				}
+				cout << graph[j][k] << " " ;
+			}
+			cout << endl ;
+		 }
+
+
 
 	}
 
@@ -181,6 +242,12 @@ void RoutingTable::receiveAdvertisement() {
 
 		//TODO: Call process Ad to be processed using Bellman-ford algorithm
 		//TODO: Triggered Update happens if there is any update in the routing table
+
+		//Updating graph based on advertisement from a neighbor
+		int indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
+		for(int j=0;j<adv->adEntryVector.size();j++) {
+			graph[indexEntry][j]=adv->adEntryVector.at(j).cost;
+		}
 
 		for(int i=0;i<adv->adEntryVector.size();i++) {
 			struct in_addr address;

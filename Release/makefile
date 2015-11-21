@@ -44,7 +44,7 @@ all: distanceVector
 distanceVector: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	g++ -lpthread -o "distanceVector" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -pthread -o "distanceVector" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

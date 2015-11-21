@@ -24,6 +24,7 @@
 #include <sys/time.h>
 #include <vector>
 #include <pthread.h>
+#include <map>
 
 #include "RouteEntry.h"
 #include "Logger.h"
@@ -41,6 +42,9 @@ public:
 	int portNum;
 	Logger *logger;
 	RouteEntryVector routingTableVector;
+	int **graph;
+	map <long,int>hostToIndexMap;
+	int numOfNodes;
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
 	int splitHorizon;
