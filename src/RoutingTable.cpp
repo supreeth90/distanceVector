@@ -53,7 +53,7 @@ string RoutingTable::getFormattedGraphTable(){
 	logger->logDebug(SSTR("In getFormattedGraphTable"));
 	stringstream graphTableStream;
 	cout << "Printing the routing table" << endl;
-	int routingTableSize=this->routingTableVector.size();
+	//int routingTableSize=this->routingTableVector.size();
 	for (int j = 0; j < numOfNodes; j++) {
 			for (int k = 0; k < numOfNodes; k++) {
 				graphTableStream << graph[j][k] << " ";
@@ -187,7 +187,8 @@ void RoutingTable::sendAdvertisement(){
 
 	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
 	//TTL Validation
-	for(int i=0;i<this->routingTableVector.size();i++) {
+	int routingTableSize=this->routingTableVector.size();
+	for(int i = 0;i < routingTableSize;i++) {
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
 		currentTime=(long)tv.tv_sec;
@@ -200,7 +201,7 @@ void RoutingTable::sendAdvertisement(){
 	logger->logDebug(SSTR("Create and Send the Advertisement"));
 	//Create and Send Ads
 
-	for(int i=0;i<this->routingTableVector.size();i++) {
+	for(int i = 0;i < routingTableSize;i++) {
 
 		//Send the Ads to the neighbors
 		if(this->routingTableVector.at(i).cost == 1) {
@@ -271,12 +272,13 @@ void RoutingTable::receiveAdvertisement() {
 
 		//Updating graph based on advertisement from a neighbor
 		indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
-		for(int j=0;j<adv->adEntryVector.size();j++) {
+		int advVecSize = adv->adEntryVector.size();
+		for(int j = 0;j < advVecSize;j++) {
 			graph[indexEntry][j]=adv->adEntryVector.at(j).cost;
 		}
 
 		logger->logDebug(SSTR(getFormattedGraphTable()));
-		for(int i=0;i<adv->adEntryVector.size();i++) {
+		for(int i = 0;i < advVecSize;i++) {
 			struct in_addr address;
 			address.s_addr=adv->adEntryVector.at(i).destination;
 			cout << "dest: "<< inet_ntoa(address);
