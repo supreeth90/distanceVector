@@ -210,7 +210,6 @@ void RoutingTable::sendAdvertisement(){
 			Advertisement *advertisement=new Advertisement();
 			advertisement->loadAdFromRoutingTable(this,this->routingTableVector.at(i));
 			adPacket=advertisement->serializeToCharArray();
-
 			struct sockaddr_in neighborAddress;
 			bzero((char *) &neighborAddress, sizeof(neighborAddress));
 			neighborAddress.sin_addr=this->routingTableVector.at(i).destination;

@@ -47,11 +47,10 @@ char* Advertisement::serializeToCharArray() {
 	logger->logDebug(SSTR("numOfEntries In serializeToCharArray::"<<numOfEntries));
 	char *finalPacket;
 	finalPacket = (char *) calloc(numOfEntries, AD_ENTRY_SIZE);
-
 	for(int i=0;i<numOfEntries;i++) {
 		AdEntry adEntry=this->adEntryVector.at(i);
-		memcpy(finalPacket + (AD_ENTRY_SIZE*i) , &(adEntry.destination), sizeof(long));
-		memcpy(finalPacket + 4 + (AD_ENTRY_SIZE*i), &(adEntry.cost), sizeof(long));
+		memcpy(finalPacket + (AD_ENTRY_SIZE*i) , &(adEntry.destination), sizeof(int));
+		memcpy(finalPacket + 4 + (AD_ENTRY_SIZE*i), &(adEntry.cost), sizeof(int));
 	}
 	return finalPacket;
 }

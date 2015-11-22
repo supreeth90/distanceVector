@@ -13,7 +13,7 @@ using namespace std;
 
 Logger::Logger() {
 	// TODO Auto-generated constructor stub
-	logFile.open ("dvnode.log",ios::out);
+	logFile.open ("dvnode.log",ios::out | ios::app);
 }
 
 void Logger::logDebug(string logText) {
