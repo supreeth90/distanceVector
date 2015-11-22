@@ -40,7 +40,7 @@ void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl
 	logger->logDebug(SSTR("In createAndInitializeRoutingTable " <<ttl << " inf:"<< infinity <<" port:"<< port_number));
 	routingTable=new RoutingTable(sockfd,port_number,ttl,infinity,split_horizon);
 	routingTable->initialize(configFileName);
-	routingTable->printRoutingTable();
+	cout << routingTable->getFormattedRoutingTable() << endl;
 }
 
 void MainClass::startServer(int portNum) {

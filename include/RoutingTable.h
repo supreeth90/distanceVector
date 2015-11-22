@@ -52,7 +52,10 @@ public:
 	virtual ~RoutingTable();
 	void addRouteEntry(RouteEntry routeEntry);
 	void initialize(string fileName);
-	void printRoutingTable();
+	void initiaizeGraph();
+	struct in_addr getSourceIpAddress();
+	string getFormattedRoutingTable();
+	string getFormattedGraphTable();
 	void sendAdvertisement();
 	void receiveAdvertisement();
 	void createThreads();

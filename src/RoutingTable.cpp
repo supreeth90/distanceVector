@@ -37,16 +37,35 @@ void RoutingTable::addRouteEntry(RouteEntry routeEntry) {
 	routingTableVector.push_back(routeEntry);
 }
 
-void RoutingTable::printRoutingTable(){
-	logger->logDebug(SSTR("In printRoutingTable "));
+string RoutingTable::getFormattedRoutingTable(){
+	logger->logDebug(SSTR("In getFormattedRoutingTable"));
 	cout << "Printing the routing table" << endl;
+	stringstream routeTableStream;
 	int routingTableSize=this->routingTableVector.size();
 	for(int i=0;i<routingTableSize;i++) {
-		cout << this->routingTableVector.at(i).getFormattedRouteEntry() << endl;
+		routeTableStream << this->routingTableVector.at(i).getFormattedRouteEntry() << endl;
 		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
 	}
 	logger->logDebug(SSTR("End of printRoutingTable "));
 	cout << "End of the routing table" << endl;
+	return routeTableStream.str();
+}
+
+string RoutingTable::getFormattedGraphTable(){
+	logger->logDebug(SSTR("In getFormattedGraphTable"));
+	stringstream graphTableStream;
+	cout << "Printing the routing table" << endl;
+	int routingTableSize=this->routingTableVector.size();
+	for (int j = 0; j < numOfNodes; j++) {
+			for (int k = 0; k < numOfNodes; k++) {
+				graphTableStream << graph[j][k] << " ";
+			}
+			graphTableStream << endl;
+	}
+	string graphTable = graphTableStream.str();
+	logger->logDebug(SSTR("End of printRoutingTable "));
+	cout << "End of the routing table" << endl;
+	return graphTable;
 }
 
 void RoutingTable::initialize(string fileName){
@@ -56,30 +75,11 @@ void RoutingTable::initialize(string fileName){
 	numOfNodes=0;
 
 	char ipAddress[20]={0},isNeighbor[4]={0};
-	char sourceHostName[30]={0};
-	size_t sourceHostNameLen;
 	configFile.open(fileName.c_str(), ios::in);
 	if (configFile.is_open()) {
 		logger->logDebug(SSTR("Config File open success"));
 
-
-		//TODO: get source Ip somehow
-		struct in_addr source;
-		source.s_addr=0;
-		gethostname(sourceHostName,sourceHostNameLen);
-		struct hostent *he=gethostbyname(sourceHostName);
-		struct in_addr **addr_list;
-
-		addr_list = (struct in_addr **)he->h_addr_list;
-		if(addr_list[0] != NULL) {
-			cout << "Source IP resolved is " << inet_ntoa(*addr_list[0]) << endl;
-			logger->logDebug(SSTR("Source IP Address: " << inet_ntoa(*addr_list[0])));
-			source=*addr_list[0];
-		} else {
-			cerr << "Couldnt resolve source IP" << endl;
-			exit(0);
-		}
-
+		struct in_addr source=getSourceIpAddress();
 
 		hostToIndexMap.insert(make_pair(source.s_addr,numOfNodes+1));
 		RouteEntry *routeEntry=new RouteEntry();
@@ -129,29 +129,54 @@ void RoutingTable::initialize(string fileName){
 		 }
 
 		 //Initializing graph nodes
-		 graph = new int*[numOfNodes];
-		 for(int i=0;i<numOfNodes;i++) {
-			 graph[i]=new int[numOfNodes];
-		 }
+		 initiaizeGraph();
 
-		cout << "Initialized graph table" << endl;
-		for (int j = 0; j < numOfNodes; j++) {
-			for (int k = 0; k < numOfNodes; k++) {
-				if (j == 0) {
-					graph[j][k] = routingTableVector.at(k).cost;
-				} else {
-					graph[j][k] = INFINITY_VALUE;
-				}
-				cout << graph[j][k] << " " ;
-			}
-			cout << endl ;
-		 }
+		 cout << "graphInit done " << endl << getFormattedGraphTable() << endl;
+	}
+}
 
-
-
+void RoutingTable::initiaizeGraph() {
+	graph = new int*[numOfNodes];
+	for (int i = 0; i < numOfNodes; i++) {
+		graph[i] = new int[numOfNodes];
 	}
 
+	cout << "Initialized graph table" << endl;
+	for (int j = 0; j < numOfNodes; j++) {
+		for (int k = 0; k < numOfNodes; k++) {
+			if (j == 0) {
+				graph[j][k] = routingTableVector.at(k).cost;
+			} else {
+				graph[j][k] = INFINITY_VALUE;
+			}
+			cout << graph[j][k] << " ";
+		}
+		cout << endl;
+	}
+}
 
+struct in_addr RoutingTable::getSourceIpAddress() {
+	char sourceHostName[50] = { 0 };
+	struct in_addr source;
+	gethostname(sourceHostName, sizeof(sourceHostName));
+	cout << "sourceHostName:" << sourceHostName << endl;
+	struct hostent *he = gethostbyname(sourceHostName);
+	if (he == NULL) {
+		cout << "source hostent: is null" << endl;
+	}
+	struct in_addr **addr_list;
+
+	addr_list = (struct in_addr **) he->h_addr_list;
+	if (addr_list[0] != NULL) {
+		cout << "Source IP resolved is " << inet_ntoa(*addr_list[0]) << endl;
+		logger->logDebug(
+				SSTR("Source IP Address: " << inet_ntoa(*addr_list[0])));
+		source = *addr_list[0];
+	} else {
+		cerr << "Couldnt resolve source IP" << endl;
+		exit(0);
+	}
+	return source;
 }
 
 void RoutingTable::sendAdvertisement(){
@@ -193,7 +218,6 @@ void RoutingTable::sendAdvertisement(){
 			sendto(sockfd, adPacket, advertisement->numOfEntries*AD_ENTRY_SIZE , 0, (struct sockaddr *) &neighborAddress,
 							sizeof(neighborAddress));
 			free(advertisement);
-			free(adPacket);
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
 	}
@@ -249,6 +273,7 @@ void RoutingTable::receiveAdvertisement() {
 			graph[indexEntry][j]=adv->adEntryVector.at(j).cost;
 		}
 
+		logger->logDebug(SSTR(getFormattedGraphTable()));
 		for(int i=0;i<adv->adEntryVector.size();i++) {
 			struct in_addr address;
 			address.s_addr=adv->adEntryVector.at(i).destination;
