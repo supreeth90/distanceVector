@@ -5,9 +5,9 @@
  *      Author: supreeth
  */
 
-#include "../include/RoutingTable.h"
-#include "../include/Advertisement.h"
 
+#include "../include/Advertisement.h"
+#include "../include/RoutingTable.h"
 
 
 const int MAX_PACKET_SIZE=1472;
@@ -299,7 +299,7 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry)
 		{
 			graph[srcIndexEntry][i] = graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry];
 			routingTableVector.at(i).cost = graph[srcIndexEntry][i];
-			for(std::map<long int, int>::iterator it = hostToIndexMap.begin(); it != hostToIndexMap.end();it++)
+			for(std::map<in_addr_t, int>::iterator it = hostToIndexMap.begin(); it != (std::map<in_addr_t, int>::iterator)(hostToIndexMap.end());it++)
 			{
 
 				if (i == it->second)
