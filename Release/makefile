@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: distanceVector
+all: distanceVector_rel1
 
 # Tool invocations
-distanceVector: $(OBJS) $(USER_OBJS)
+distanceVector_rel1: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	g++ -pthread -o "distanceVector" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++  -o "distanceVector_rel1" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) distanceVector
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) distanceVector_rel1
 	-@echo ' '
 
 .PHONY: all clean dependents

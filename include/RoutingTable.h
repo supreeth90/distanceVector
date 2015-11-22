@@ -25,6 +25,10 @@
 #include <vector>
 #include <pthread.h>
 #include <map>
+#include <sys/unistd.h>
+#include <netdb.h>
+#include <iterator>
+#include <stdlib.h>
 
 #include "RouteEntry.h"
 #include "Logger.h"
@@ -43,7 +47,7 @@ public:
 	Logger *logger;
 	RouteEntryVector routingTableVector;
 	int **graph;
-	map <long,int>hostToIndexMap;
+	map <in_addr_t,int>hostToIndexMap;
 	int numOfNodes;
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
@@ -60,6 +64,7 @@ public:
 	void receiveAdvertisement();
 	void createThreads();
 	static void * testRun(void * This);
+	void BellmanFord(int** graph,int indexEntry);
 };
 
 #endif /* ROUTINGTABLE_H_ */

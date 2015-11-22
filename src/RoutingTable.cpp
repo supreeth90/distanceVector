@@ -7,17 +7,15 @@
 
 #include "../include/RoutingTable.h"
 #include "../include/Advertisement.h"
-#include <sys/unistd.h>
-#include <netdb.h>
-#include <iterator>
-#include <stdlib.h>
+
+
 
 const int MAX_PACKET_SIZE=1472;
 
 using namespace std;
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-        ( std::ostringstream() << std::dec << x ) ).str()
+		( std::ostringstream() << std::dec << x ) ).str()
 
 RoutingTable::RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon) {
 	// TODO Auto-generated constructor stub
@@ -93,30 +91,30 @@ void RoutingTable::initialize(string fileName){
 		numOfNodes++;
 		addRouteEntry(*routeEntry);
 
-		 while ( getline (configFile,line) ) {
-			 logger->logDebug(SSTR("Config File line read: " << line));
-			 sscanf(line.c_str(),"%s %s",ipAddress,isNeighbor);
-			 logger->logDebug(SSTR("Config File line current IpAddress: " << ipAddress << " neighbor: " << isNeighbor));
-			 RouteEntry *routeEntry=new RouteEntry();
-			 if(strstr(isNeighbor,"yes") != NULL) {
-				 routeEntry->cost=1;
-				 logger->logDebug(SSTR("Adding to Neighbor list"));
-			 } else {
-				 logger->logDebug(SSTR("Adding to non-neighbor list"));
-				 routeEntry->cost=INFINITY_VALUE;
-			 }
-			 struct in_addr destination;
-			 if (inet_aton(ipAddress, &destination) == 0) {
-				 logger->logError(SSTR("Error in Dest ip conversion: " << ipAddress));
-				 cout << "Error in converting " << endl;
-			 }
-			 routeEntry->destination=destination;
+		while ( getline (configFile,line) ) {
+			logger->logDebug(SSTR("Config File line read: " << line));
+			sscanf(line.c_str(),"%s %s",ipAddress,isNeighbor);
+			logger->logDebug(SSTR("Config File line current IpAddress: " << ipAddress << " neighbor: " << isNeighbor));
+			RouteEntry *routeEntry=new RouteEntry();
+			if(strstr(isNeighbor,"yes") != NULL) {
+				routeEntry->cost=1;
+				logger->logDebug(SSTR("Adding to Neighbor list"));
+			} else {
+				logger->logDebug(SSTR("Adding to non-neighbor list"));
+				routeEntry->cost=INFINITY_VALUE;
+			}
+			struct in_addr destination;
+			if (inet_aton(ipAddress, &destination) == 0) {
+				logger->logError(SSTR("Error in Dest ip conversion: " << ipAddress));
+				cout << "Error in converting " << endl;
+			}
+			routeEntry->destination=destination;
 
-			 //TODO: Should be set only for neighbor.. check back
-//			 struct in_addr nextHop;
-//			if (inet_aton(ipAddress, &nextHop) == 0) {
-//				cout << "Error in converting " << endl;
-//			}
+			//TODO: Should be set only for neighbor.. check back
+			//			 struct in_addr nextHop;
+			//			if (inet_aton(ipAddress, &nextHop) == 0) {
+			//				cout << "Error in converting " << endl;
+			//			}
 			routeEntry->nextHop=destination;
 
 			struct timeval tv;
@@ -126,10 +124,12 @@ void RoutingTable::initialize(string fileName){
 			hostToIndexMap.insert(make_pair(destination.s_addr,numOfNodes));
 			numOfNodes++;
 			addRouteEntry(*routeEntry);
-		 }
+		}
+
 
 		 //Initializing graph nodes
 		 initiaizeGraph();
+
 
 		 cout << "graphInit done " << endl << getFormattedGraphTable() << endl;
 	}
@@ -216,11 +216,13 @@ void RoutingTable::sendAdvertisement(){
 			neighborAddress.sin_family=AF_INET;
 			neighborAddress.sin_port=htons(portNum);
 			sendto(sockfd, adPacket, advertisement->numOfEntries*AD_ENTRY_SIZE , 0, (struct sockaddr *) &neighborAddress,
-							sizeof(neighborAddress));
+					sizeof(neighborAddress));
 			free(advertisement);
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
 	}
+
+	BellmanFord(graph,INFINITY_VALUE);
 }
 
 void RoutingTable::createThreads() {
@@ -230,7 +232,7 @@ void RoutingTable::createThreads() {
 	int threadStatus;
 	if ((threadStatus = pthread_create(&threads[0], NULL,
 			testRun, this))) {
-			cout << "Thread creation failed: " << threadStatus << endl;
+		cout << "Thread creation failed: " << threadStatus << endl;
 	}
 }
 
@@ -252,11 +254,11 @@ void RoutingTable::receiveAdvertisement() {
 	socklen_t addr_size;
 	struct sockaddr_in neighborAddress;
 	addr_size = sizeof(neighborAddress);
-
+	int indexEntry;
 	while(1) {
 		cout << "Waiting for an Advertisement" << endl;
 		while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
-					(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
+				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
 		logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
 
 		int numOfEntries=n/AD_ENTRY_SIZE;
@@ -268,7 +270,7 @@ void RoutingTable::receiveAdvertisement() {
 		//TODO: Triggered Update happens if there is any update in the routing table
 
 		//Updating graph based on advertisement from a neighbor
-		int indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
+		indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
 		for(int j=0;j<adv->adEntryVector.size();j++) {
 			graph[indexEntry][j]=adv->adEntryVector.at(j).cost;
 		}
@@ -282,4 +284,39 @@ void RoutingTable::receiveAdvertisement() {
 			cout << " cost: "<< adv->adEntryVector.at(i).cost << endl;
 		}
 	}
+	BellmanFord(graph, indexEntry);
+}
+
+void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry)
+{
+
+	int srcIndexEntry = hostToIndexMap.at((long)(routingTableVector.at(0).destination.s_addr));
+	int V = hostToIndexMap.size();
+	//Bellman Ford Algorithm
+	for (int i = 0; i < V; i++ )
+	{
+		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry]) < graph[srcIndexEntry][i]) && (0 != graph[AdvIndexEntry][i]))
+		{
+			graph[srcIndexEntry][i] = graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry];
+			routingTableVector.at(i).cost = graph[srcIndexEntry][i];
+			for(std::map<long int, int>::iterator it = hostToIndexMap.begin(); it != hostToIndexMap.end();it++)
+			{
+
+				if (i == it->second)
+					routingTableVector.at(i).destination.s_addr = it->first;
+
+
+				if (AdvIndexEntry == it->second)
+					routingTableVector.at(i).nextHop.s_addr = it->first;
+
+
+			}
+
+
+		}
+	}
+
+
+	return;
+
 }
