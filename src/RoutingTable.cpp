@@ -79,7 +79,8 @@ void RoutingTable::initialize(string fileName){
 
 		struct in_addr source=getSourceIpAddress();
 
-		hostToIndexMap.insert(make_pair(source.s_addr,numOfNodes+1));
+		logger->logDebug(SSTR(" IP:" << inet_ntoa(source) <<" -> index:" << numOfNodes));
+		hostToIndexMap.insert(make_pair(source.s_addr,numOfNodes));
 		RouteEntry *routeEntry=new RouteEntry();
 		routeEntry->destination=source;
 		routeEntry->nextHop=source;
@@ -121,6 +122,7 @@ void RoutingTable::initialize(string fileName){
 			gettimeofday(&tv, NULL);
 			routeEntry->ttl=(long) tv.tv_sec + DEFAULT_TTL;
 
+			logger->logDebug(SSTR(" IP:" << inet_ntoa(source) <<" -> index:" << numOfNodes));
 			hostToIndexMap.insert(make_pair(destination.s_addr,numOfNodes));
 			numOfNodes++;
 			addRouteEntry(*routeEntry);
@@ -222,7 +224,7 @@ void RoutingTable::sendAdvertisement(){
 		}
 	}
 
-	BellmanFord(graph,INFINITY_VALUE);
+//	BellmanFord(graph,INFINITY_VALUE);
 }
 
 void RoutingTable::createThreads() {
@@ -259,7 +261,7 @@ void RoutingTable::receiveAdvertisement() {
 		cout << "Waiting for an Advertisement" << endl;
 		while ((n=recvfrom(sockfd, buffer, MAX_PACKET_SIZE, 0,
 				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0);
-		logger->logDebug(SSTR("receiveAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
+		logger->logDebug(SSTR("receivedAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
 
 		int numOfEntries=n/AD_ENTRY_SIZE;
 		cout << "numOfEntries in the Ad" << numOfEntries << endl;
@@ -271,9 +273,11 @@ void RoutingTable::receiveAdvertisement() {
 
 		//Updating graph based on advertisement from a neighbor
 		indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
+		int iIndex=0;
 		int advVecSize = adv->adEntryVector.size();
 		for(int j = 0;j < advVecSize;j++) {
-			graph[indexEntry][j]=adv->adEntryVector.at(j).cost;
+			iIndex = hostToIndexMap.at(adv->adEntryVector.at(j).destination);
+			graph[indexEntry][iIndex]=adv->adEntryVector.at(j).cost;
 		}
 
 		logger->logDebug(SSTR(getFormattedGraphTable()));
@@ -284,15 +288,32 @@ void RoutingTable::receiveAdvertisement() {
 			logger->logDebug(SSTR("In receiveAdvertisement ::" << address.s_addr << ".." << inet_ntoa(address)));
 			cout << " cost: "<< adv->adEntryVector.at(i).cost << endl;
 		}
+		logger->logDebug(SSTR("Routing table before bellman ford " << getFormattedRoutingTable() << endl));
+		BellmanFord(graph, indexEntry);
+		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
 	}
-	BellmanFord(graph, indexEntry);
+}
+
+long RoutingTable::indexToHost(int index) {
+	for (std::map<in_addr_t, int>::iterator it = hostToIndexMap.begin();
+			it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
+			it++) {
+		if (index == it->second) {
+			return (long) it->first;
+		}
+	}
+	return 0;
 }
 
 void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry)
 {
-
+	logger->logDebug(SSTR("Running BellmanFord for " << AdvIndexEntry ));
 	int srcIndexEntry = hostToIndexMap.at((long)(routingTableVector.at(0).destination.s_addr));
 	int V = hostToIndexMap.size();
+
+	logger->logDebug(SSTR("Running BellmanFord srcIndexEntry " << srcIndexEntry << " V:" << V));
+
+	logger->logDebug(SSTR("Graph before bellman ford " << getFormattedGraphTable() << endl));
 	//Bellman Ford Algorithm
 	for (int i = 0; i < V; i++ )
 	{
@@ -317,6 +338,7 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry)
 		}
 	}
 
+	logger->logDebug(SSTR("Graph after bellman ford " << getFormattedGraphTable() << endl));
 
 	return;
 

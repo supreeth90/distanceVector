@@ -18,7 +18,7 @@ MainClass::MainClass() {
 MainClass::MainClass(int argc, char *argv[]) {
 	// TODO Auto-generated constructor stub
 	logger= new Logger();
-
+	logger->cleanup();
 	filename = argv[1];
 	port_number = std::atoi(argv[2]);
 	ttl = std::atof(argv[3]);

@@ -54,6 +54,7 @@ public:
 	int splitHorizon;
 	RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon);
 	virtual ~RoutingTable();
+	long indexToHost(int index);
 	void addRouteEntry(RouteEntry routeEntry);
 	void initialize(string fileName);
 	void initiaizeGraph();

@@ -1,0 +1,244 @@
+11-22-2015 15:28:32.502841[DEBUG] Starting the node... port:65531
+11-22-2015 15:28:32.503445[DEBUG] Node started successfully
+11-22-2015 15:28:32.503470[DEBUG] In createAndInitializeRoutingTable 100 inf:16 port:65531
+11-22-2015 15:28:32.503507[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:28:32.503531[DEBUG] Config File open success
+11-22-2015 15:28:32.671649[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:28:32.672743[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:28:32.672781[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:28:32.672790[DEBUG] Adding to Neighbor list
+11-22-2015 15:28:32.672803[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:28:32.672809[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:28:32.672814[DEBUG] Adding to non-neighbor list
+11-22-2015 15:28:32.672844[DEBUG] In getFormattedGraphTable
+11-22-2015 15:28:32.672857[DEBUG] End of printRoutingTable 
+11-22-2015 15:28:32.672889[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:28:32.672909[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224112
+11-22-2015 15:28:32.672925[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224212
+11-22-2015 15:28:32.672936[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224212
+11-22-2015 15:28:32.672944[DEBUG] End of printRoutingTable 
+11-22-2015 15:28:32.673010[DEBUG] Creating Receive thread
+11-22-2015 15:28:32.673063[DEBUG] In sendAdvertisement
+11-22-2015 15:28:32.673082[DEBUG] Entering TTL validation3
+11-22-2015 15:28:32.673070[DEBUG] Entered testRun
+11-22-2015 15:28:32.673092[DEBUG] Create and Send the Advertisement
+11-22-2015 15:28:32.673103[DEBUG] In receiveAdvertisement 
+11-22-2015 15:28:32.673133[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:28:32.673149[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:28:32.673156[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:28:32.673164[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:28:32.673169[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:28:32.673174[DEBUG] In serializeToCharArray::
+11-22-2015 15:28:32.673179[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:28:32.673228[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:32:07.373260[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:32:07.373468[DEBUG] Config File open success
+11-22-2015 15:32:07.638358[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:32:07.639544[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:32:07.639582[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:32:07.639591[DEBUG] Adding to Neighbor list
+11-22-2015 15:32:07.639604[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:32:07.639610[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:32:07.639615[DEBUG] Adding to non-neighbor list
+11-22-2015 15:32:07.639646[DEBUG] In getFormattedGraphTable
+11-22-2015 15:32:07.639659[DEBUG] End of printRoutingTable 
+11-22-2015 15:32:07.639692[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:32:07.639713[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224327
+11-22-2015 15:32:07.639724[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224427
+11-22-2015 15:32:07.639734[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224427
+11-22-2015 15:32:07.639739[DEBUG] End of printRoutingTable 
+11-22-2015 15:32:07.639802[DEBUG] Creating Receive thread
+11-22-2015 15:32:07.639855[DEBUG] In sendAdvertisement
+11-22-2015 15:32:07.639863[DEBUG] Entered testRun
+11-22-2015 15:32:07.639873[DEBUG] Entering TTL validation3
+11-22-2015 15:32:07.639883[DEBUG] Create and Send the Adve1tise-2ent2015 15:32:07.
+639884[DEBUG] In receiveAdvertisement 
+11-22-2015 15:32:07.639921[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:32:07.639934[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:32:07.639941[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:32:07.639955[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:32:07.639961[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:32:07.639969[DEBUG] In serializeToCharArray::
+11-22-2015 15:32:07.639974[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:32:07.640023[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:33:39.916082[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:33:39.916114[DEBUG] Config File open success
+11-22-2015 15:33:39.917604[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:33:39.917644[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:33:39.917660[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:33:39.917667[DEBUG] Adding to Neighbor list
+11-22-2015 15:33:39.917677[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:33:39.917682[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:33:39.917687[DEBUG] Adding to non-neighbor list
+11-22-2015 15:33:39.917715[DEBUG] In getFormattedGraphTable
+11-22-2015 15:33:39.917731[DEBUG] End of printRoutingTable 
+11-22-2015 15:33:39.917757[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:33:39.917773[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224419
+11-22-2015 15:33:39.917785[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224519
+11-22-2015 15:33:39.917803[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224519
+11-22-2015 15:33:39.917811[DEBUG] End of printRoutingTable 
+11-22-2015 15:33:39.917839[DEBUG] Creating Receive thread
+11-22-2015 15:33:39.917972[DEBUG] In sendAdvertisement
+11-22-2015 15:33:39.917978[DEBUG] Entered testRun
+11-22-2015 15:33:39.918003[DEBUG] Entering TTL validation3
+11-22-2015 15:33:39.918009[DEBUG] In receiveAdvertisement 
+11-22-2015 15:33:39.918013[DEBUG] Create and Send the Advertisement
+11-22-2015 15:33:39.918048[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:33:39.918058[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:33:39.918064[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:33:39.918069[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:33:39.918073[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:33:39.918080[DEBUG] In serializeToCharArray::
+11-22-2015 15:33:39.918087[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:33:39.918151[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:35:10.514878[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:35:10.515048[DEBUG] Config File open success
+11-22-2015 15:35:10.862163[DEBUG] Source IP Address: 10.0.0.17
+11-22-2015 15:35:10.862251[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:35:10.862282[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:35:10.862298[DEBUG] Adding to Neighbor list
+11-22-2015 15:35:10.862320[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:35:10.862332[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:35:10.862342[DEBUG] Adding to non-neighbor list
+11-22-2015 15:35:10.862407[DEBUG] In getFormattedGraphTable
+11-22-2015 15:35:10.862443[DEBUG] End of printRoutingTable 
+11-22-2015 15:35:10.862497[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:35:10.862536[DEBUG] Destination:10.0.0.17 nextHop:10.0.0.17 cost:0 ttl:1452224510
+11-22-2015 15:35:10.862576[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224610
+11-22-2015 15:35:10.862610[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224610
+11-22-2015 15:35:10.862621[DEBUG] End of printRoutingTable 
+11-22-2015 15:35:10.862683[DEBUG] Creating Receive thread
+11-22-2015 15:35:10.862765[DEBUG] In sendAdvertisement
+11-22-2015 15:35:10.862787[DEBUG] Entered testRun
+862796[DEBUG] Entering TTL validation3
+11-22-2015 15:35:10.862863[DEBUG] Create and Send the Advertisement
+11-22-2015 15:35:10.862862[DEBUG] In receiveAdvertisement 
+11-22-2015 15:35:10.862902[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:35:10.863501[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:35:10.863512[DEBUG] Creating an ad entry for 10.0.0.17
+11-22-2015 15:35:10.863517[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:35:10.863522[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:35:10.863529[DEBUG] In serializeToCharArray::
+11-22-2015 15:35:10.863534[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:35:10.863582[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:37:18.818849[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:37:18.818933[DEBUG] Config File open success
+11-22-2015 15:37:19.97588[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:37:19.97639[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:37:19.97655[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:37:19.97663[DEBUG] Adding to Neighbor list
+11-22-2015 15:37:19.97675[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:37:19.97681[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:37:19.97686[DEBUG] Adding to non-neighbor list
+11-22-2015 15:37:19.97718[DEBUG] In getFormattedGraphTable
+11-22-2015 15:37:19.97770[DEBUG] End of printRoutingTable 
+11-22-2015 15:37:19.97837[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:37:19.97863[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224639
+11-22-2015 15:37:19.97875[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224739
+11-22-2015 15:37:19.97886[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224739
+11-22-2015 15:37:19.97890[DEBUG] End of printRoutingTable 
+11-22-2015 15:37:19.97948[DEBUG] Creating Receive thread
+11-22-2015 15:37:19.98004[DEBUG] In sendAdvertisement
+11-22-2015 15:37:19.98019[DEBUG] Entered testRun
+11-22-2015 15:37:19.98028[DEBUG] Entering TTL validation3
+11-22-2015 15:37:19.98044[DEBUG] In receiveAdvertisement 
+11-22-2015 15:37:19.98044[DEBUG] In receiveAdvertisement 
+11-22-2015 15:37:19.98057[DEBUG] Create and Send the Advertisement
+11-22-2015 15:37:19.98111[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:37:19.98127[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:37:19.98133[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:37:19.98138[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:37:19.98143[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:37:19.98149[DEBUG] In serializeToCharArray::
+11-22-2015 15:37:19.98167[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:37:19.98225[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:38:37.320224[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:38:37.320389[DEBUG] Config File open success
+11-22-2015 15:38:37.325539[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:38:37.325697[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:38:37.325760[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:38:37.325793[DEBUG] Adding to Neighbor list
+11-22-2015 15:38:37.325824[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:38:37.325844[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:38:37.325864[DEBUG] Adding to non-neighbor list
+11-22-2015 15:38:37.325913[DEBUG] In getFormattedGraphTable
+11-22-2015 15:38:37.325931[DEBUG] End of printRoutingTable 
+11-22-2015 15:38:37.326019[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:38:37.326065[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224717
+11-22-2015 15:38:37.326095[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224817
+11-22-2015 15:38:37.326115[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224817
+11-22-2015 15:38:37.326140[DEBUG] End of printRoutingTable 
+11-22-2015 15:38:37.326183[DEBUG] Creating Receive thread
+11-22-2015 15:38:37.326319[DEBUG] In sendAdvertisement
+11-22-2015 15:38:37.326347[DEBUG] Entered testRun
+11-22-2015 15:38:37.326371[DEBUG] Entering TTL validation3
+11-22-2011-22:382:15. 15:38:37.3266466[DEB[G] ] In rCreaAdverantiSemd the Advertisement
+11-22-2011-22:382:15. 15:38:37.3266466[DEB[G] ] In rCreaAdverantiSemd the Advertisement
+11-22-2015 15:38:37.326654[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:38:37.326682[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:38:37.326694[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:38:37.326701[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:38:37.326707[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:38:37.326722[DEBUG] In serializeToCharArray::
+11-22-2015 15:38:37.326731[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:38:37.326910[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:41:07.855281[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:41:07.855425[DEBUG] Config File open success
+11-22-2015 15:41:08.130760[DEBUG] Source IP Address: 192.168.56.1
+11-22-2015 15:41:08.130859[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:41:08.130905[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:41:08.130919[DEBUG] Adding to Neighbor list
+11-22-2015 15:41:08.130973[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:41:08.131008[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:41:08.131019[DEBUG] Adding to non-neighbor list
+11-22-2015 15:41:08.131079[DEBUG] In getFormattedGraphTable
+11-22-2015 15:41:08.131105[DEBUG] End of printRoutingTable 
+11-22-2015 15:41:08.131159[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:41:08.131208[DEBUG] Destination:192.168.56.1 nextHop:192.168.56.1 cost:0 ttl:1452224868
+11-22-2015 15:41:08.131229[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448224968
+11-22-2015 15:41:08.131247[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448224968
+11-22-2015 15:41:08.131255[DEBUG] End of printRoutingTable 
+11-22-2015 15:41:08.131324[DEBUG] Creating Receive thread
+11-22-2015 15:41:08.131509[DEBUG] In sendAdvertisement
+11-22-2015 15:41:08.131532[DEBUG] Entered testRun
+11-22-2015 15:41:08.131548[DEBUG] Entering TTL validation3
+11-22-2015 15:41:08.131575[DEBUG] In receiveAdvertisement 
+11-22-2015 15:41:08.131584[DEBUG] Create and Send the Advertisement
+11-22-2015 15:41:08.131638[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:41:08.131685[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:41:08.131697[DEBUG] Creating an ad entry for 192.168.56.1
+11-22-2015 15:41:08.131706[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:41:08.131715[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:41:08.131728[DEBUG] In serializeToCharArray::
+11-22-2015 15:41:08.131737[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:41:08.131843[DEBUG] Advertisement sent to 129.79.242.102
+11-22-2015 15:43:29.927014[DEBUG] Entering initialize with Filename: configfile1
+11-22-2015 15:43:29.927083[DEBUG] Config File open success
+11-22-2015 15:43:30.243449[DEBUG] Source IP Address: 10.0.0.17
+11-22-2015 15:43:30.243531[DEBUG] Config File line read: 129.79.242.102 yes
+11-22-2015 15:43:30.243564[DEBUG] Config File line current IpAddress: 129.79.242.102 neighbor: yes
+11-22-2015 15:43:30.243580[DEBUG] Adding to Neighbor list
+11-22-2015 15:43:30.243619[DEBUG] Config File line read: 129.79.242.103 no
+11-22-2015 15:43:30.243631[DEBUG] Config File line current IpAddress: 129.79.242.103 neighbor: no
+11-22-2015 15:43:30.243639[DEBUG] Adding to non-neighbor list
+11-22-2015 15:43:30.243693[DEBUG] In getFormattedGraphTable
+11-22-2015 15:43:30.243720[DEBUG] End of printRoutingTable 
+11-22-2015 15:43:30.243765[DEBUG] In getFormattedRoutingTable
+11-22-2015 15:43:30.243800[DEBUG] Destination:10.0.0.17 nextHop:10.0.0.17 cost:0 ttl:1452225010
+11-22-2015 15:43:30.243834[DEBUG] Destination:129.79.242.102 nextHop:129.79.242.102 cost:1 ttl:1448225110
+11-22-2015 15:43:30.243860[DEBUG] Destination:129.79.242.103 nextHop:129.79.242.103 cost:16 ttl:1448225110
+11-22-2015 15:43:30.243884[DEBUG] End of printRoutingTable 
+11-22-2015 15:43:30.243972[DEBUG] Creating Receive thread
+11-22-2015 15:43:30.244086[DEBUG] In sendAdvertisement
+11-22-2015 15:43:30.244101[DEBUG] Entered testRun
+11-22-2015 15:43:30.244120[DEBUG] Entering TTL validation3
+11-22-2015 15:43:30.244131[DEBUG] In receiveAdvertisement 
+11-22-2015 15:43:30.244136[DEBUG] Create and Send the Advertisement
+11-22-2015 15:43:30.244211[DEBUG] In loadAdFromRoutingTable
+11-22-2015 15:43:30.244245[DEBUG] numOfEntries In loadAdFromRoutingTable3
+11-22-2015 15:43:30.244256[DEBUG] Creating an ad entry for 10.0.0.17
+11-22-2015 15:43:30.244265[DEBUG] Creating an ad entry for 129.79.242.102
+11-22-2015 15:43:30.244274[DEBUG] Creating an ad entry for 129.79.242.103
+11-22-2015 15:43:30.244287[DEBUG] In serializeToCharArray::
+11-22-2015 15:43:30.244296[DEBUG] numOfEntries In serializeToCharArray::3
+11-22-2015 15:43:30.244361[DEBUG] Advertisement sent to 129.79.242.102

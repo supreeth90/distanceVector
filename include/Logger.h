@@ -18,6 +18,7 @@ public:
 	Logger();
 	virtual ~Logger();
 	fstream logFile;
+	void cleanup();
 	void logDebug(string logText);
 	void logError(string logText);
 	void logInfo(string logText);
