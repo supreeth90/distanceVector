@@ -11,6 +11,10 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
+
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
+		( std::ostringstream() << std::dec << x ) ).str()
 
 using namespace std;
 class Logger {

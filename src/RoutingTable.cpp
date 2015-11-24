@@ -14,8 +14,6 @@ const int MAX_PACKET_SIZE=1472;
 
 using namespace std;
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-		( std::ostringstream() << std::dec << x ) ).str()
 
 RoutingTable::RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon) {
 	// TODO Auto-generated constructor stub
