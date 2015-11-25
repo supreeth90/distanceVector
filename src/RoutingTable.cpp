@@ -182,21 +182,15 @@ struct in_addr RoutingTable::getSourceIpAddress() {
 void RoutingTable::sendAdvertisement(){
 	cout << "Sending Advertisement" << endl;
 	logger->logDebug(SSTR("In sendAdvertisement"));
-	long currentTime=0;
 	char *adPacket;
+	int routingTableSize=this->routingTableVector.size();
+
+	//Start the lock
+	pthread_mutex_lock (&rtmutex);
 
 	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
 	//TTL Validation
-	int routingTableSize=this->routingTableVector.size();
-	for(int i = 0;i < routingTableSize;i++) {
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		currentTime=(long)tv.tv_sec;
-		if(currentTime > this->routingTableVector.at(i).ttl) {
-			logger->logDebug(SSTR("Current time greater"));
-			this->routingTableVector.at(i).cost=INFINITY_VALUE;
-		}
-	}
+	checkTtl();
 
 	logger->logDebug(SSTR("Create and Send the Advertisement"));
 	//Create and Send Ads
@@ -221,8 +215,21 @@ void RoutingTable::sendAdvertisement(){
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
 	}
+	pthread_mutex_unlock (&rtmutex);
+}
 
-//	BellmanFord(graph,INFINITY_VALUE);
+void RoutingTable::checkTtl() {
+	long currentTime=0;
+	int routingTableSize=this->routingTableVector.size();
+		for(int i = 0;i < routingTableSize;i++) {
+			struct timeval tv;
+			gettimeofday(&tv, NULL);
+			currentTime=(long)tv.tv_sec;
+			if(currentTime > this->routingTableVector.at(i).ttl) {
+				logger->logDebug(SSTR("Current time greater"));
+				this->routingTableVector.at(i).cost=INFINITY_VALUE;
+			}
+		}
 }
 
 void RoutingTable::createThreads() {
@@ -234,6 +241,8 @@ void RoutingTable::createThreads() {
 			testRun, this))) {
 		cout << "Thread creation failed: " << threadStatus << endl;
 	}
+	pthread_mutex_destroy(&rtmutex);
+//	pthread_exit(NULL);
 }
 
 void * RoutingTable::testRun(void * This) {
@@ -273,11 +282,12 @@ void RoutingTable::receiveAdvertisement() {
 		indexEntry = hostToIndexMap.at((long)(neighborAddress.sin_addr.s_addr));
 		int iIndex=0;
 		int advVecSize = adv->adEntryVector.size();
+		pthread_mutex_lock (&rtmutex);
 		for(int j = 0;j < advVecSize;j++) {
 			iIndex = hostToIndexMap.at(adv->adEntryVector.at(j).destination);
 			graph[indexEntry][iIndex]=adv->adEntryVector.at(j).cost;
 		}
-
+		pthread_mutex_unlock (&rtmutex);
 		logger->logDebug(SSTR(getFormattedGraphTable()));
 		for(int i = 0;i < advVecSize;i++) {
 			struct in_addr address;
@@ -287,7 +297,9 @@ void RoutingTable::receiveAdvertisement() {
 			cout << " cost: "<< adv->adEntryVector.at(i).cost << endl;
 		}
 		logger->logDebug(SSTR("Routing table before bellman ford " << getFormattedRoutingTable() << endl));
+		pthread_mutex_lock (&rtmutex);
 		BellmanFord(graph, indexEntry);
+		pthread_mutex_unlock (&rtmutex);
 		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
 	}
 }

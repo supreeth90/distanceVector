@@ -22,8 +22,10 @@ void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntr
 	for(int i=0;i<numOfEntries;i++) {
 		AdEntry adEntry;
 		if(routingTable->splitHorizon) {
-			if (neighborAddress.nextHop.s_addr
-					== routingTable->routingTableVector.at(i).destination.s_addr) {
+			if ((neighborAddress.destination.s_addr
+					== routingTable->routingTableVector.at(i).nextHop.s_addr)
+					&& (routingTable->routingTableVector.at(i).destination.s_addr
+							!= routingTable->routingTableVector.at(i).nextHop.s_addr)) {
 				//Dont advertise this
 				continue;
 			}

@@ -63,6 +63,7 @@ public:
 	string getFormattedGraphTable();
 	void sendAdvertisement();
 	void receiveAdvertisement();
+	void checkTtl();
 	void createThreads();
 	static void * testRun(void * This);
 	void BellmanFord(int** graph,int indexEntry);
