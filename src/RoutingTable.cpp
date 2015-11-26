@@ -7,7 +7,8 @@
 
 #include "../include/Advertisement.h"
 #include "../include/RoutingTable.h"
-
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
+		( std::ostringstream() << std::dec << x ) ).str()
 const int MAX_PACKET_SIZE = 1472;
 
 using namespace std;
@@ -32,14 +33,15 @@ void RoutingTable::addRouteEntry(RouteEntry routeEntry) {
 }
 
 string RoutingTable::getFormattedRoutingTable() {
+
 	logger->logDebug(SSTR("In getFormattedRoutingTable"));
 	cout << "Printing the routing table" << endl;
 	stringstream routeTableStream;
 	int routingTableSize = this->routingTableVector.size();
 	for (int i = 0; i < routingTableSize; i++) {
 		routeTableStream
-				<< this->routingTableVector.at(i).getFormattedRouteEntry()
-				<< endl;
+		<< this->routingTableVector.at(i).getFormattedRouteEntry()
+		<< endl;
 		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
 	}
 	logger->logDebug(SSTR("End of printRoutingTable "));
@@ -85,7 +87,7 @@ void RoutingTable::initialize(string fileName) {
 		routeEntry->cost = 0;
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
-		routeEntry->ttl = (long) tv.tv_sec + 4000000; // check back how to give infinity
+		routeEntry->ttl = (long) tv.tv_sec + DEFAULT_TTL; // check back how to give infinity
 		//Including my current node
 		numOfNodes++;
 		addRouteEntry(*routeEntry);
@@ -223,7 +225,8 @@ void RoutingTable::sendAdvertisement() {
 void RoutingTable::checkTtl() {
 	long currentTime = 0;
 	int routingTableSize = this->routingTableVector.size();
-	for (int i = 0; i < routingTableSize; i++) {
+	//should not check ttl for its own node, i.e expecting advertisement from its own self to itself! so i = 1
+	for (int i = 1; i < routingTableSize; i++) {
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
 		currentTime = (long) tv.tv_sec;
@@ -244,7 +247,7 @@ void RoutingTable::createThreads() {
 		cout << "Thread creation failed: " << threadStatus << endl;
 	}
 	pthread_mutex_destroy(&rtmutex);
-//	pthread_exit(NULL);
+	//	pthread_exit(NULL);
 }
 
 void * RoutingTable::testRun(void * This) {
@@ -303,7 +306,29 @@ void RoutingTable::receiveAdvertisement() {
 		}
 		logger->logDebug(SSTR("Routing table before bellman ford " << getFormattedRoutingTable() << endl));
 		pthread_mutex_lock(&rtmutex);
+		int routingTSize = routingTableVector.size();
+		cout << "Routing Table before Bellman Ford:";
+		for (int i =0; i< routingTSize; i++)
+		{
+			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
+			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
+			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
+
+			cout << "\n Cost:" << routingTableVector.at(i).cost ;
+
+		}
+
+
 		BellmanFord(graph, indexEntry);
+		cout << "\n\nRouting Table after Bellman Ford:";
+		for (int i =0; i< routingTSize; i++)
+		{
+			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
+			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
+			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
+
+			cout << "\n Cost:" << routingTableVector.at(i).cost ;
+		}
 		pthread_mutex_unlock(&rtmutex);
 		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
 	}
@@ -337,12 +362,12 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 	logger->logDebug(SSTR("Graph before bellman ford " << getFormattedGraphTable() << endl));
 	//Bellman Ford Algorithm
 	for (int i = 0; i < V; i++) {
-//		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry])
-//				< graph[srcIndexEntry][i]) && (0 != graph[AdvIndexEntry][i])) {
 		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry])
-				< INFINITY_VALUE) && (0 != graph[AdvIndexEntry][i])) {
+				< graph[srcIndexEntry][i]) && (0 != graph[AdvIndexEntry][i]) && (0 != graph[srcIndexEntry][i])) {
+			//		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry])
+			//			< INFINITY_VALUE) && (0 != graph[AdvIndexEntry][i])) {
 			graph[srcIndexEntry][i] = graph[AdvIndexEntry][i]
-					+ graph[srcIndexEntry][AdvIndexEntry];
+			                                               + graph[srcIndexEntry][AdvIndexEntry];
 			routingTableVector.at(i).cost = graph[srcIndexEntry][i];
 			for (std::map<in_addr_t, int>::iterator it = hostToIndexMap.begin();
 					it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
@@ -352,7 +377,13 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 					routingTableVector.at(i).destination.s_addr = it->first;
 
 				if (AdvIndexEntry == it->second)
+				{
 					routingTableVector.at(i).nextHop.s_addr = it->first;
+					struct timeval tv;
+					gettimeofday(&tv, NULL);
+					routingTableVector.at(i).ttl =   tv.tv_sec + DEFAULT_TTL;
+
+				}
 
 			}
 
