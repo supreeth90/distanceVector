@@ -262,6 +262,7 @@ void RoutingTable::receiveAdvertisement() {
 
 	logger->logDebug(SSTR("In receiveAdvertisement "));
 	int n = 0;
+	bool valueChanged=false;
 	unsigned char buffer[MAX_PACKET_SIZE];
 	bzero(buffer, MAX_PACKET_SIZE);
 	socklen_t addr_size;
@@ -319,7 +320,7 @@ void RoutingTable::receiveAdvertisement() {
 		}
 
 
-		BellmanFord(graph, indexEntry);
+		valueChanged=BellmanFord(graph, indexEntry);
 		cout << "\n\nRouting Table after Bellman Ford:";
 		for (int i =0; i< routingTSize; i++)
 		{
@@ -331,6 +332,11 @@ void RoutingTable::receiveAdvertisement() {
 		}
 		pthread_mutex_unlock(&rtmutex);
 		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
+		//Send Triggered updates when value is changed
+		if(valueChanged) {
+			logger->logDebug(SSTR("Sending triggered updates as value is changed " << endl));
+			sendAdvertisement();
+		}
 	}
 }
 
@@ -351,8 +357,9 @@ long RoutingTable::indexToHost(int index) {
 	return 0;
 }
 
-void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
+bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 	logger->logDebug(SSTR("Running BellmanFord for " << AdvIndexEntry));
+	bool valueChanged=false;
 	int srcIndexEntry = hostToIndexMap.at(
 			(long) (routingTableVector.at(0).destination.s_addr));
 	int V = hostToIndexMap.size();
@@ -369,6 +376,7 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 			graph[srcIndexEntry][i] = graph[AdvIndexEntry][i]
 			                                               + graph[srcIndexEntry][AdvIndexEntry];
 			routingTableVector.at(i).cost = graph[srcIndexEntry][i];
+			valueChanged=true;
 			for (std::map<in_addr_t, int>::iterator it = hostToIndexMap.begin();
 					it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
 					it++) {
@@ -390,6 +398,6 @@ void RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 		}
 	}
 	logger->logDebug(SSTR("Graph after bellman ford " << getFormattedGraphTable() << endl));
-	return;
+	return valueChanged;
 
 }

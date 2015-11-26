@@ -67,7 +67,7 @@ public:
 	void checkTtl();
 	void createThreads();
 	static void * testRun(void * This);
-	void BellmanFord(int** graph, int indexEntry);
+	bool BellmanFord(int** graph, int indexEntry);
 };
 
 #endif /* ROUTINGTABLE_H_ */
