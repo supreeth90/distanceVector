@@ -33,7 +33,6 @@
 #include "RouteEntry.h"
 #include "Logger.h"
 
-
 using namespace std;
 
 typedef std::vector<RouteEntry> RouteEntryVector;
@@ -47,12 +46,13 @@ public:
 	Logger *logger;
 	RouteEntryVector routingTableVector;
 	int **graph;
-	map <in_addr_t,int>hostToIndexMap;
+	map<in_addr_t, int> hostToIndexMap;
 	int numOfNodes;
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
 	int splitHorizon;
-	RoutingTable(int sockfd,int portNum,double ttl,int infinityValue,bool split_horizon);
+	RoutingTable(int sockfd, int portNum, double ttl, int infinityValue,
+			bool split_horizon);
 	virtual ~RoutingTable();
 	long indexToHost(int index);
 	void addRouteEntry(RouteEntry routeEntry);
@@ -63,10 +63,11 @@ public:
 	string getFormattedGraphTable();
 	void sendAdvertisement();
 	void receiveAdvertisement();
+	void updateTtl(int index);
 	void checkTtl();
 	void createThreads();
 	static void * testRun(void * This);
-	void BellmanFord(int** graph,int indexEntry);
+	void BellmanFord(int** graph, int indexEntry);
 };
 
 #endif /* ROUTINGTABLE_H_ */
