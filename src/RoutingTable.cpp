@@ -173,7 +173,7 @@ struct in_addr RoutingTable::getSourceIpAddress() {
 				SSTR("Source IP Address: " << inet_ntoa(*addr_list[0])));
 		source = *addr_list[0];
 	} else {
-		cerr << "Couldnt resolve source IP" << endl;
+		cerr << "Couldn't resolve source IP" << endl;
 		exit(0);
 	}
 	return source;
@@ -189,8 +189,7 @@ void RoutingTable::sendAdvertisement() {
 	pthread_mutex_lock(&rtmutex);
 
 	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
-	//TTL Validation
-	if (splitHorizon)//if it is true
+	//TTL Validation (will occur regardless of splitHorizon)
 	checkTtl();
 
 	logger->logDebug(SSTR("Create and Send the Advertisement"));
