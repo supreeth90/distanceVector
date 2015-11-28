@@ -190,6 +190,7 @@ void RoutingTable::sendAdvertisement() {
 
 	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
 	//TTL Validation
+	if (splitHorizon)//if it is true
 	checkTtl();
 
 	logger->logDebug(SSTR("Create and Send the Advertisement"));
@@ -359,9 +360,11 @@ long RoutingTable::indexToHost(int index) {
 
 bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 	logger->logDebug(SSTR("Running BellmanFord for " << AdvIndexEntry));
+
 	bool valueChanged=false;
 	int srcIndexEntry = hostToIndexMap.at(
 			(long) (routingTableVector.at(0).destination.s_addr));
+
 	int V = hostToIndexMap.size();
 
 	logger->logDebug(SSTR("Running BellmanFord srcIndexEntry " << srcIndexEntry << " V:" << V));
