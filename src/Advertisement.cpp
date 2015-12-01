@@ -59,7 +59,6 @@ char* Advertisement::serializeToCharArray() {
 
 void Advertisement::deserializeToAdvertisement(unsigned char *datagramChars, int length) {
 
-	cout << "length in deSerializeee::" << length << endl;
 	this->numOfEntries=length;
 	for(int i=0;i<length;i++) {
 		AdEntry adEntry;

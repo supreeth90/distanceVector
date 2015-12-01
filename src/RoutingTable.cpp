@@ -7,8 +7,6 @@
 
 #include "../include/Advertisement.h"
 #include "../include/RoutingTable.h"
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-		( std::ostringstream() << std::dec << x ) ).str()
 const int MAX_PACKET_SIZE = 1472;
 
 using namespace std;
@@ -35,7 +33,7 @@ void RoutingTable::addRouteEntry(RouteEntry routeEntry) {
 string RoutingTable::getFormattedRoutingTable() {
 
 	logger->logDebug(SSTR("In getFormattedRoutingTable"));
-	cout << "Printing the routing table" << endl;
+//	cout << "Printing the routing table" << endl;
 	stringstream routeTableStream;
 	int routingTableSize = this->routingTableVector.size();
 	for (int i = 0; i < routingTableSize; i++) {
@@ -45,24 +43,24 @@ string RoutingTable::getFormattedRoutingTable() {
 		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
 	}
 	logger->logDebug(SSTR("End of printRoutingTable "));
-	cout << "End of the routing table" << endl;
+//	cout << "End of the routing table" << endl;
 	return routeTableStream.str();
 }
 
 string RoutingTable::getFormattedGraphTable() {
 	logger->logDebug(SSTR("In getFormattedGraphTable"));
 	stringstream graphTableStream;
-	cout << "Printing the routing table" << endl;
+//	cout << "Printing the routing table" << endl;
 	//int routingTableSize=this->routingTableVector.size();
 	for (int j = 0; j < numOfNodes; j++) {
 		for (int k = 0; k < numOfNodes; k++) {
-			graphTableStream << graph[j][k] << " ";
+			graphTableStream << graph[j][k] << "   ";
 		}
 		graphTableStream << endl;
 	}
 	string graphTable = graphTableStream.str();
 	logger->logDebug(SSTR("End of printRoutingTable "));
-	cout << "End of the routing table" << endl;
+//	cout << "End of the routing table" << endl;
 	return graphTable;
 }
 
@@ -275,7 +273,7 @@ void RoutingTable::receiveAdvertisement() {
 				(struct sockaddr *) &neighborAddress, &addr_size)) <= 0)
 			;
 		logger->logDebug(SSTR("receivedAdvertisement from "<< inet_ntoa(neighborAddress.sin_addr)));
-
+		cout << "receivedAdvertisement from " << inet_ntoa(neighborAddress.sin_addr) << endl;
 		int numOfEntries = n / AD_ENTRY_SIZE;
 		cout << "numOfEntries in the Ad" << numOfEntries << endl;
 		Advertisement *adv = new Advertisement();
@@ -295,41 +293,40 @@ void RoutingTable::receiveAdvertisement() {
 			graph[indexEntry][iIndex] = adv->adEntryVector.at(j).cost;
 		}
 		updateTtl(indexEntry);
+		checkTtl();
 		pthread_mutex_unlock(&rtmutex);
 
 		logger->logDebug(SSTR(getFormattedGraphTable()));
 		for (int i = 0; i < advVecSize; i++) {
 			struct in_addr address;
 			address.s_addr = adv->adEntryVector.at(i).destination;
-			cout << "dest: " << inet_ntoa(address);
-			logger->logDebug(SSTR("In receiveAdvertisement ::" << address.s_addr << ".." << inet_ntoa(address)));
-			cout << " cost: " << adv->adEntryVector.at(i).cost << endl;
+			logger->logDebug(SSTR("receivedAdvertisement Entries::" << inet_ntoa(address) << " Cost:" << adv->adEntryVector.at(i).cost));
 		}
 		logger->logDebug(SSTR("Routing table before bellman ford " << getFormattedRoutingTable() << endl));
 		pthread_mutex_lock(&rtmutex);
-		int routingTSize = routingTableVector.size();
-		cout << "Routing Table before Bellman Ford:";
-		for (int i =0; i< routingTSize; i++)
-		{
-			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
-			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
-			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
-
-			cout << "\n Cost:" << routingTableVector.at(i).cost ;
-
-		}
+//		int routingTSize = routingTableVector.size();
+//		cout << "Routing Table before Bellman Ford:";
+//		for (int i =0; i< routingTSize; i++)
+//		{
+//			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
+//			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
+//			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
+//
+//			cout << "\n Cost:" << routingTableVector.at(i).cost ;
+//
+//		}
 
 
 		valueChanged=BellmanFord(graph, indexEntry);
-		cout << "\n\nRouting Table after Bellman Ford:";
-		for (int i =0; i< routingTSize; i++)
-		{
-			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
-			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
-			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
-
-			cout << "\n Cost:" << routingTableVector.at(i).cost ;
-		}
+//		cout << "\n\nRouting Table after Bellman Ford:";
+//		for (int i =0; i< routingTSize; i++)
+//		{
+//			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
+//			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
+//			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
+//
+//			cout << "\n Cost:" << routingTableVector.at(i).cost ;
+//		}
 		pthread_mutex_unlock(&rtmutex);
 		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
 		//Send Triggered updates when value is changed
@@ -341,9 +338,16 @@ void RoutingTable::receiveAdvertisement() {
 }
 
 void RoutingTable::updateTtl(int index) {
+	logger->logDebug(SSTR("In updateTtl for " << index));
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	routingTableVector.at(index).ttl = tv.tv_sec + DEFAULT_TTL;
+	for(int i=0;i<routingTableVector.size();i++) {  //Updating TTL whose nextHop is index
+		if(routingTableVector.at(i).nextHop.s_addr==indexToHost(index)) {
+			logger->logDebug(SSTR("Updating TTL for " << inet_ntoa(routingTableVector.at(i).destination)));
+			routingTableVector.at(i).ttl=tv.tv_sec + DEFAULT_TTL;
+		}
+	}
 }
 
 long RoutingTable::indexToHost(int index) {
@@ -351,6 +355,7 @@ long RoutingTable::indexToHost(int index) {
 			it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
 			it++) {
 		if (index == it->second) {
+			logger->logDebug(SSTR("In indexToHost for " << index << " is " << (long) it->first));
 			return (long) it->first;
 		}
 	}
@@ -365,12 +370,35 @@ bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
 			(long) (routingTableVector.at(0).destination.s_addr));
 
 	int V = hostToIndexMap.size();
-
+	int nextHopIndex=0;
 	logger->logDebug(SSTR("Running BellmanFord srcIndexEntry " << srcIndexEntry << " V:" << V));
 
 	logger->logDebug(SSTR("Graph before bellman ford " << getFormattedGraphTable() << endl));
 	//Bellman Ford Algorithm
 	for (int i = 0; i < V; i++) {
+
+		if(routingTableVector.at(i).nextHop.s_addr != routingTableVector.at(i).destination.s_addr) {
+			nextHopIndex=hostToIndexMap.at(
+						(long) (routingTableVector.at(i).nextHop.s_addr));
+
+			if (graph[srcIndexEntry][i] != INFINITY_VALUE
+					&& graph[srcIndexEntry][nextHopIndex]
+							+ graph[nextHopIndex][i]
+							!= graph[srcIndexEntry][i]) {
+				graph[srcIndexEntry][i] = graph[srcIndexEntry][nextHopIndex]
+						+ graph[nextHopIndex][i];
+				routingTableVector.at(i).cost = graph[srcIndexEntry][i];
+				if (graph[srcIndexEntry][i] >= INFINITY_VALUE) {
+					routingTableVector.at(i).cost = INFINITY_VALUE;
+					graph[srcIndexEntry][i] = INFINITY_VALUE;
+				}
+				valueChanged = true;
+				logger->logDebug(
+						SSTR(
+								"Cost changed because the nextHop's cost changed" << getFormattedGraphTable() << endl));
+			}
+		}
+
 		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry])
 				< graph[srcIndexEntry][i]) && (0 != graph[AdvIndexEntry][i]) && (0 != graph[srcIndexEntry][i])) {
 			//		if (((graph[AdvIndexEntry][i] + graph[srcIndexEntry][AdvIndexEntry])

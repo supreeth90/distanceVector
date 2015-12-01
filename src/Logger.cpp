@@ -17,7 +17,7 @@ Logger::Logger() {
 }
 
 void Logger::cleanup() {
-	// TODO Auto-generated constructor stub
+	cout << "Log Cleanup is called" << endl;
 	logFile.open ("../dvnode.log",ios::out );
 }
 
