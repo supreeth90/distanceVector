@@ -59,7 +59,7 @@ string RoutingTable::getFormattedGraphTable() {
 		graphTableStream << endl;
 	}
 	string graphTable = graphTableStream.str();
-	logger->logDebug(SSTR("End of printRoutingTable "));
+//	logger->logDebug(SSTR("End of printRoutingTable "));
 //	cout << "End of the routing table" << endl;
 	return graphTable;
 }
@@ -70,7 +70,7 @@ void RoutingTable::initialize(string fileName) {
 	string line;
 	numOfNodes = 0;
 
-	char ipAddress[20] = { 0 }, isNeighbor[4] = { 0 };
+	char ipAddress[50] = { 0 }, isNeighbor[4] = { 0 };
 	configFile.open(fileName.c_str(), ios::in);
 	if (configFile.is_open()) {
 		logger->logDebug(SSTR("Config File open success"));
@@ -103,10 +103,12 @@ void RoutingTable::initialize(string fileName) {
 				routeEntry->cost = INFINITY_VALUE;
 			}
 			struct in_addr destination;
-			if (inet_aton(ipAddress, &destination) == 0) {
-				logger->logError(SSTR("Error in Dest ip conversion: " << ipAddress));
-				cout << "Error in converting " << endl;
-			}
+//			gethostbyname()
+			destination=getIpFromHostName(ipAddress);
+//			if (inet_aton(ipAddress, &destination) == 0) {
+//				logger->logError(SSTR("Error in Dest ip conversion: " << ipAddress));
+//				cout << "Error in converting " << endl;
+//			}
 			routeEntry->destination = destination;
 
 			//TODO: Should be set only for neighbor.. check back
@@ -139,34 +141,34 @@ void RoutingTable::initiaizeGraph() {
 		graph[i] = new int[numOfNodes];
 	}
 
-	cout << "Initialized graph table" << endl;
-	for (int j = 0; j < numOfNodes; j++) {
-		for (int k = 0; k < numOfNodes; k++) {
-			if (j == 0) {
-				graph[j][k] = routingTableVector.at(k).cost;
-			} else {
-				graph[j][k] = INFINITY_VALUE;
-			}
-			cout << graph[j][k] << " ";
-		}
-		cout << endl;
-	}
+//	cout << "Initialized graph table" << endl;
+//	for (int j = 0; j < numOfNodes; j++) {
+//		for (int k = 0; k < numOfNodes; k++) {
+//			if (j == 0) {
+//				graph[j][k] = routingTableVector.at(k).cost;
+//			} else {
+//				graph[j][k] = INFINITY_VALUE;
+//			}
+//			cout << graph[j][k] << " ";
+//		}
+//		cout << endl;
+//	}
 }
 
 struct in_addr RoutingTable::getSourceIpAddress() {
 	char sourceHostName[50] = { 0 };
 	struct in_addr source;
 	gethostname(sourceHostName, sizeof(sourceHostName));
-	cout << "sourceHostName:" << sourceHostName << endl;
 	struct hostent *he = gethostbyname(sourceHostName);
 	if (he == NULL) {
-		cout << "source hostent: is null" << endl;
+		cerr << "source hostent: is null" << endl;
+		exit(0);
 	}
 	struct in_addr **addr_list;
 
 	addr_list = (struct in_addr **) he->h_addr_list;
 	if (addr_list[0] != NULL) {
-		cout << "Source IP resolved is " << inet_ntoa(*addr_list[0]) << endl;
+		cout << "Source IP is " << inet_ntoa(*addr_list[0]) << endl;
 		logger->logDebug(
 				SSTR("Source IP Address: " << inet_ntoa(*addr_list[0])));
 		source = *addr_list[0];
@@ -177,8 +179,28 @@ struct in_addr RoutingTable::getSourceIpAddress() {
 	return source;
 }
 
+struct in_addr RoutingTable::getIpFromHostName(char *hostname){
+	struct in_addr hostIp;
+	struct hostent *he = gethostbyname(hostname);
+	if (he == NULL) {
+		cerr << " hostname resolution failure for " << hostname << endl;
+		exit(0);
+	}
+	struct in_addr **addr_list;
+	addr_list = (struct in_addr **) he->h_addr_list;
+	if (addr_list[0] != NULL) {
+		logger->logDebug(
+				SSTR("HostName: " << hostname << "IP: "<< inet_ntoa(*addr_list[0])));
+		hostIp = *addr_list[0];
+	} else {
+		cerr << "Couldn't resolve hostname of " << hostname << endl;
+		exit(0);
+	}
+	return hostIp;
+
+}
+
 void RoutingTable::sendAdvertisement() {
-	cout << "Sending Advertisement" << endl;
 	logger->logDebug(SSTR("In sendAdvertisement"));
 	char *adPacket;
 	int routingTableSize = this->routingTableVector.size();
@@ -214,6 +236,7 @@ void RoutingTable::sendAdvertisement() {
 					(struct sockaddr *) &neighborAddress,
 					sizeof(neighborAddress));
 			free(advertisement);
+			cout << "Advertisement sent to " << inet_ntoa(this->routingTableVector.at(i).destination) << endl;
 			logger->logDebug(SSTR("Advertisement sent to "<< inet_ntoa(this->routingTableVector.at(i).destination)));
 		}
 	}
@@ -245,7 +268,6 @@ void RoutingTable::createThreads() {
 		cout << "Thread creation failed: " << threadStatus << endl;
 	}
 	pthread_mutex_destroy(&rtmutex);
-	//	pthread_exit(NULL);
 }
 
 void * RoutingTable::testRun(void * This) {
@@ -279,9 +301,6 @@ void RoutingTable::receiveAdvertisement() {
 		Advertisement *adv = new Advertisement();
 		adv->deserializeToAdvertisement(buffer, numOfEntries);
 
-		//TODO: Call process Ad to be processed using Bellman-ford algorithm
-		//TODO: Triggered Update happens if there is any update in the routing table
-
 		//Updating graph based on advertisement from a neighbor
 		indexEntry = hostToIndexMap.at(
 				(long) (neighborAddress.sin_addr.s_addr));
@@ -304,31 +323,10 @@ void RoutingTable::receiveAdvertisement() {
 		}
 		logger->logDebug(SSTR("Routing table before bellman ford " << getFormattedRoutingTable() << endl));
 		pthread_mutex_lock(&rtmutex);
-//		int routingTSize = routingTableVector.size();
-//		cout << "Routing Table before Bellman Ford:";
-//		for (int i =0; i< routingTSize; i++)
-//		{
-//			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
-//			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
-//			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
-//
-//			cout << "\n Cost:" << routingTableVector.at(i).cost ;
-//
-//		}
-
-
 		valueChanged=BellmanFord(graph, indexEntry);
-//		cout << "\n\nRouting Table after Bellman Ford:";
-//		for (int i =0; i< routingTSize; i++)
-//		{
-//			cout << "\nDestination:" << inet_ntoa(routingTableVector.at(i).destination);
-//			cout << "\nNext Hop:" << inet_ntoa(routingTableVector.at(i).nextHop);
-//			cout << "\n TTL:" << routingTableVector.at(i).ttl ;
-//
-//			cout << "\n Cost:" << routingTableVector.at(i).cost ;
-//		}
 		pthread_mutex_unlock(&rtmutex);
 		logger->logDebug(SSTR("Routing table after bellman ford " << getFormattedRoutingTable() << endl));
+
 		//Send Triggered updates when value is changed
 		if(valueChanged) {
 			logger->logDebug(SSTR("Sending triggered updates as value is changed " << endl));

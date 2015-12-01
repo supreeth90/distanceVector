@@ -92,19 +92,4 @@ int main(int argc, char *argv[]) {
 		sleep(period);
 	}
 
-	//TODO: Command line arguments input and processing
-	// argv[1] config file name
-	// argv[2]	port number
-	// argv[3]	ttl
-	// argv[4]	infinity
-	// argv[5]	period
-	// argv[6]	split horizon ("yes" or "no"
-
-
-	//	main->startServer(portNum);
-
-
-	//	logger->logDebug("Starting the node!!");
-	cout << "Hola amigos!!" << endl;
-
 }

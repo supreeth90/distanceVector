@@ -59,6 +59,7 @@ public:
 	void initialize(string fileName);
 	void initiaizeGraph();
 	struct in_addr getSourceIpAddress();
+	struct in_addr getIpFromHostName(char *hostname);
 	string getFormattedRoutingTable();
 	string getFormattedGraphTable();
 	void sendAdvertisement();

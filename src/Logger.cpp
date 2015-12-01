@@ -22,31 +22,23 @@ void Logger::cleanup() {
 }
 
 void Logger::logDebug(string logText) {
-	 char buffer[30];
-	  struct timeval tv;
-
-	  time_t curtime;
-
-
-
-	 gettimeofday(&tv, NULL);
-	 curtime=tv.tv_sec;
-
-	 strftime(buffer,30,"%m-%d-%Y %T.",localtime(&curtime));
-	 logFile << buffer << tv.tv_usec << "[DEBUG] " << logText << endl;
+	char buffer[30];
+	struct timeval tv;
+	time_t curtime;
+	gettimeofday(&tv, NULL);
+	curtime = tv.tv_sec;
+	strftime(buffer, 30, "%m-%d-%Y %T.", localtime(&curtime));
+	logFile << buffer << tv.tv_usec << "[DEBUG] " << logText << endl;
 }
 
 void Logger::logError(string logText) {
-	 char buffer[30];
-	  struct timeval tv;
-
-	  time_t curtime;
-
-	 gettimeofday(&tv, NULL);
-	 curtime=tv.tv_sec;
-
-	 strftime(buffer,30,"%m-%d-%Y %T.",localtime(&curtime));
-	 logFile << buffer << tv.tv_usec << "[ERROR] " << logText << endl;
+	char buffer[30];
+	struct timeval tv;
+	time_t curtime;
+	gettimeofday(&tv, NULL);
+	curtime = tv.tv_sec;
+	strftime(buffer, 30, "%m-%d-%Y %T.", localtime(&curtime));
+	logFile << buffer << tv.tv_usec << "[ERROR] " << logText << endl;
 }
 
 void Logger::logInfo(string logText) {
