@@ -8,9 +8,6 @@
 #include "../include/MainClass.h"
 #include <pthread.h>
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-		( std::ostringstream() << std::dec << x ) ).str()
-
 MainClass::MainClass() {
 	// TODO Auto-generated constructor stub
 }

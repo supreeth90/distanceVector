@@ -36,13 +36,14 @@ string RoutingTable::getFormattedRoutingTable() {
 //	cout << "Printing the routing table" << endl;
 	stringstream routeTableStream;
 	int routingTableSize = this->routingTableVector.size();
+	routeTableStream << endl;
 	for (int i = 0; i < routingTableSize; i++) {
 		routeTableStream
 		<< this->routingTableVector.at(i).getFormattedRouteEntry()
 		<< endl;
-		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
+//		logger->logDebug(SSTR(this->routingTableVector.at(i).getFormattedRouteEntry()));
 	}
-	logger->logDebug(SSTR("End of printRoutingTable "));
+//	logger->logDebug(SSTR("End of printRoutingTable "));
 //	cout << "End of the routing table" << endl;
 	return routeTableStream.str();
 }
@@ -52,6 +53,7 @@ string RoutingTable::getFormattedGraphTable() {
 	stringstream graphTableStream;
 //	cout << "Printing the routing table" << endl;
 	//int routingTableSize=this->routingTableVector.size();
+	graphTableStream << endl;
 	for (int j = 0; j < numOfNodes; j++) {
 		for (int k = 0; k < numOfNodes; k++) {
 			graphTableStream << graph[j][k] << "   ";
@@ -142,17 +144,17 @@ void RoutingTable::initiaizeGraph() {
 	}
 
 //	cout << "Initialized graph table" << endl;
-//	for (int j = 0; j < numOfNodes; j++) {
-//		for (int k = 0; k < numOfNodes; k++) {
-//			if (j == 0) {
-//				graph[j][k] = routingTableVector.at(k).cost;
-//			} else {
-//				graph[j][k] = INFINITY_VALUE;
-//			}
+	for (int j = 0; j < numOfNodes; j++) {
+		for (int k = 0; k < numOfNodes; k++) {
+			if (j == 0) {
+				graph[j][k] = routingTableVector.at(k).cost;
+			} else {
+				graph[j][k] = INFINITY_VALUE;
+			}
 //			cout << graph[j][k] << " ";
-//		}
+		}
 //		cout << endl;
-//	}
+	}
 }
 
 struct in_addr RoutingTable::getSourceIpAddress() {
@@ -208,11 +210,11 @@ void RoutingTable::sendAdvertisement() {
 	//Start the lock
 	pthread_mutex_lock(&rtmutex);
 
-	logger->logDebug(SSTR("Entering TTL validation" << this->routingTableVector.size()));
+	logger->logDebug(SSTR("Entering TTL validation"));
 	//TTL Validation (will occur regardless of splitHorizon)
 	checkTtl();
 
-	logger->logDebug(SSTR("Create and Send the Advertisement"));
+	logger->logDebug(SSTR("Routing table before sending advertisement" << getFormattedRoutingTable()));
 	//Create and Send Ads
 
 	for (int i = 0; i < routingTableSize; i++) {
@@ -252,7 +254,7 @@ void RoutingTable::checkTtl() {
 		gettimeofday(&tv, NULL);
 		currentTime = (long) tv.tv_sec;
 		if (currentTime > this->routingTableVector.at(i).ttl) {
-			logger->logDebug(SSTR("Current time greater"));
+			logger->logDebug(SSTR("TTL Expired for " << inet_ntoa(this->routingTableVector.at(i).destination)));
 			this->routingTableVector.at(i).cost = INFINITY_VALUE;
 			graph[0][i] = INFINITY_VALUE;
 		}

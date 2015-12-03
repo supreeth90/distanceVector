@@ -8,8 +8,6 @@
 #include "../include/Advertisement.h"
 #include "../include/AdEntry.h"
 #include <stdlib.h>
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-        ( std::ostringstream() << std::dec << x ) ).str()
 
 Advertisement::Advertisement() {
 	logger= new Logger();
@@ -18,7 +16,7 @@ Advertisement::Advertisement() {
 void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntry neighborAddress) {
 	logger->logDebug(SSTR("In loadAdFromRoutingTable"));
 	numOfEntries=routingTable->routingTableVector.size();
-	logger->logDebug(SSTR("numOfEntries In loadAdFromRoutingTable" << numOfEntries));
+//	logger->logDebug(SSTR("numOfEntries In loadAdFromRoutingTable" << numOfEntries));
 	for(int i=0;i<numOfEntries;i++) {
 		AdEntry adEntry;
 		if(routingTable->splitHorizon) {
@@ -33,7 +31,7 @@ void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntr
 		adEntry.destination=(long)routingTable->routingTableVector.at(i).destination.s_addr;
 		adEntry.cost=(long)routingTable->routingTableVector.at(i).cost;
 		this->adEntryVector.push_back(adEntry);
-		logger->logDebug(SSTR("Creating an ad entry for " << inet_ntoa(routingTable->routingTableVector.at(i).destination)));
+//		logger->logDebug(SSTR("Creating an ad entry for " << inet_ntoa(routingTable->routingTableVector.at(i).destination)));
 	}
 
 }
@@ -44,9 +42,9 @@ Advertisement::~Advertisement() {
 
 char* Advertisement::serializeToCharArray() {
 
-	logger->logDebug(SSTR("In serializeToCharArray::"));
+//	logger->logDebug(SSTR("In serializeToCharArray::"));
 	numOfEntries=this->adEntryVector.size();
-	logger->logDebug(SSTR("numOfEntries In serializeToCharArray::"<<numOfEntries));
+	logger->logDebug(SSTR("numOfEntries In serializeToCharArray "<<numOfEntries));
 	char *finalPacket;
 	finalPacket = (char *) calloc(numOfEntries, AD_ENTRY_SIZE);
 	for(int i=0;i<numOfEntries;i++) {
