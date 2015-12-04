@@ -9,11 +9,9 @@
 #include <pthread.h>
 
 MainClass::MainClass() {
-	// TODO Auto-generated constructor stub
 }
 
 MainClass::MainClass(int argc, char *argv[]) {
-	// TODO Auto-generated constructor stub
 	logger= new Logger();
 	logger->cleanup();
 	filename = argv[1];
@@ -30,7 +28,6 @@ MainClass::MainClass(int argc, char *argv[]) {
 }
 
 MainClass::~MainClass() {
-	// TODO Auto-generated destructor stub
 }
 
 void MainClass::createAndInitializeRoutingTable(string configFileName,double ttl, int infinity,int port_number,bool split_horizon) {

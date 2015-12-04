@@ -14,9 +14,8 @@ Advertisement::Advertisement() {
 }
 
 void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntry neighborAddress) {
-	logger->logDebug(SSTR("In loadAdFromRoutingTable"));
+	logger->logDebug(SSTR("In loadAdFromRoutingTable for " << inet_ntoa(neighborAddress.destination)));
 	numOfEntries=routingTable->routingTableVector.size();
-//	logger->logDebug(SSTR("numOfEntries In loadAdFromRoutingTable" << numOfEntries));
 	for(int i=0;i<numOfEntries;i++) {
 		AdEntry adEntry;
 		if(routingTable->splitHorizon) {
@@ -31,20 +30,17 @@ void Advertisement::loadAdFromRoutingTable(RoutingTable *routingTable, RouteEntr
 		adEntry.destination=(long)routingTable->routingTableVector.at(i).destination.s_addr;
 		adEntry.cost=(long)routingTable->routingTableVector.at(i).cost;
 		this->adEntryVector.push_back(adEntry);
-//		logger->logDebug(SSTR("Creating an ad entry for " << inet_ntoa(routingTable->routingTableVector.at(i).destination)));
+		logger->logDebug(SSTR("Ad entry to send Destination:" << inet_ntoa(routingTable->routingTableVector.at(i).destination) << " cost:" << routingTable->routingTableVector.at(i).cost));
 	}
 
 }
 
 Advertisement::~Advertisement() {
-	// TODO Auto-generated destructor stub
 }
 
 char* Advertisement::serializeToCharArray() {
-
-//	logger->logDebug(SSTR("In serializeToCharArray::"));
 	numOfEntries=this->adEntryVector.size();
-	logger->logDebug(SSTR("numOfEntries In serializeToCharArray "<<numOfEntries));
+	logger->logDebug(SSTR("numOfEntries in the advertisement "<<numOfEntries));
 	char *finalPacket;
 	finalPacket = (char *) calloc(numOfEntries, AD_ENTRY_SIZE);
 	for(int i=0;i<numOfEntries;i++) {
