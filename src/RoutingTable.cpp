@@ -276,7 +276,6 @@ void RoutingTable::receiveAdvertisement() {
 		logger->logDebug(SSTR("Routing table when advertisement received" << getFormattedRoutingTable()));
 
 		int numOfEntries = n / AD_ENTRY_SIZE;
-		cout << "numOfEntries in the Ad" << numOfEntries << endl;
 		Advertisement *adv = new Advertisement();
 		adv->deserializeToAdvertisement(buffer, numOfEntries);
 
@@ -317,12 +316,6 @@ void RoutingTable::updateTtl(int index) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	routingTableVector.at(index).ttl = tv.tv_sec + DEFAULT_TTL;
-//	for(int i=0;i<routingTableVector.size();i++) {  //Updating TTL whose nextHop is index
-//		if(routingTableVector.at(i).nextHop.s_addr==indexToHost(index)) {
-//			logger->logDebug(SSTR("Updating TTL for " << inet_ntoa(routingTableVector.at(i).destination)));
-//			routingTableVector.at(i).ttl=tv.tv_sec + DEFAULT_TTL;
-//		}
-//	}
 }
 
 long RoutingTable::indexToHost(int index) {
@@ -367,14 +360,12 @@ bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
                     if ((INFINITY_VALUE != d[j]) && ((d[j] + graph[j][k]) < d[k] ))
                     {
                         d[k] = d[j] + graph[j][k];
-                        logger->logDebug(SSTR("777:j " << j << " k " << k << " d[k]" << d[k]));
                         struct in_addr hop;
                         if(j == 0) { //Directly connected hence assigning the hop itself as next hop
                         	hop.s_addr=indexToHost(k);
                         } else {
                         	hop.s_addr=indexToHost(j);
                         }
-                        logger->logDebug(SSTR(inet_ntoa(hop)));
                         routingTableVector.at(k).nextHop=hop;
                     }
                 }

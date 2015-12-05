@@ -12,7 +12,6 @@
 using namespace std;
 
 Logger::Logger() {
-	// TODO Auto-generated constructor stub
 	logFile.open ("../dvnode.log",ios::out | ios::app);
 }
 
@@ -44,11 +43,7 @@ void Logger::logError(string logText) {
 void Logger::logInfo(string logText) {
 	 char buffer[30];
 	  struct timeval tv;
-
 	  time_t curtime;
-
-
-
 	 gettimeofday(&tv, NULL);
 	 curtime=tv.tv_sec;
 

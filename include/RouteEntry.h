@@ -20,7 +20,6 @@ public:
 	struct in_addr nextHop;
 	int cost;
 	long ttl;
-
 	std::string getFormattedRouteEntry();
 };
 
