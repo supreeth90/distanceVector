@@ -51,6 +51,7 @@ public:
 	int INFINITY_VALUE;
 	int DEFAULT_TTL;
 	int splitHorizon;
+	struct timeval startTime;
 	RoutingTable(int sockfd, int portNum, double ttl, int infinityValue,
 			bool split_horizon);
 	virtual ~RoutingTable();

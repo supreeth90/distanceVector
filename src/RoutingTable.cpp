@@ -76,7 +76,7 @@ void RoutingTable::initialize(string fileName) {
 		routeEntry->cost = 0;
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
-		routeEntry->ttl = (long) tv.tv_sec + DEFAULT_TTL;
+		routeEntry->ttl = (long) tv.tv_sec;
 		//Including my current node
 		numOfNodes++;
 		addRouteEntry(*routeEntry);
@@ -94,7 +94,6 @@ void RoutingTable::initialize(string fileName) {
 				routeEntry->cost = INFINITY_VALUE;
 			}
 			struct in_addr destination;
-//			gethostbyname()
 			destination=getIpFromHostName(ipAddress);
 			routeEntry->destination = destination;
 			routeEntry->nextHop = destination;
@@ -318,12 +317,12 @@ void RoutingTable::updateTtl(int index) {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	routingTableVector.at(index).ttl = tv.tv_sec + DEFAULT_TTL;
-	for(int i=0;i<routingTableVector.size();i++) {  //Updating TTL whose nextHop is index
-		if(routingTableVector.at(i).nextHop.s_addr==indexToHost(index)) {
-			logger->logDebug(SSTR("Updating TTL for " << inet_ntoa(routingTableVector.at(i).destination)));
-			routingTableVector.at(i).ttl=tv.tv_sec + DEFAULT_TTL;
-		}
-	}
+//	for(int i=0;i<routingTableVector.size();i++) {  //Updating TTL whose nextHop is index
+//		if(routingTableVector.at(i).nextHop.s_addr==indexToHost(index)) {
+//			logger->logDebug(SSTR("Updating TTL for " << inet_ntoa(routingTableVector.at(i).destination)));
+//			routingTableVector.at(i).ttl=tv.tv_sec + DEFAULT_TTL;
+//		}
+//	}
 }
 
 long RoutingTable::indexToHost(int index) {
@@ -331,7 +330,6 @@ long RoutingTable::indexToHost(int index) {
 			it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
 			it++) {
 		if (index == it->second) {
-//			logger->logDebug(SSTR("In indexToHost for " << index << " is " << (long) it->first));
 			return (long) it->first;
 		}
 	}
@@ -340,6 +338,7 @@ long RoutingTable::indexToHost(int index) {
 
 bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
     bool valueChanged=false;
+    bool nodesConverged=true;
     int srcIndexEntry = hostToIndexMap.at(
             (long) (routingTableVector.at(0).destination.s_addr));
     int V = hostToIndexMap.size();
@@ -380,66 +379,41 @@ bool RoutingTable::BellmanFord(int** graph, int AdvIndexEntry) {
                     }
                 }
             }
-
-            /*if(routingTableVector.at(i).nextHop.s_addr != routingTableVector.at(i).destination.s_addr) {
-            nextHopIndex=hostToIndexMap.at(
-                        (long) (routingTableVector.at(i).nextHop.s_addr));
-
-            if (graph[srcIndexEntry][i] != INFINITY_VALUE
-                    && graph[srcIndexEntry][nextHopIndex]
-                            + graph[nextHopIndex][i]
-                            != graph[srcIndexEntry][i]) {
-                graph[srcIndexEntry][i] = graph[srcIndexEntry][nextHopIndex]
-                        + graph[nextHopIndex][i];
-                routingTableVector.at(i).cost = graph[srcIndexEntry][i];
-                if (graph[srcIndexEntry][i] >= INFINITY_VALUE) {
-                    routingTableVector.at(i).cost = INFINITY_VALUE;
-                    graph[srcIndexEntry][i] = INFINITY_VALUE;
-                }
-                valueChanged = true;
-                logger->logDebug(
-                        SSTR(
-                                "Cost changed because the nextHop's cost changed" << getFormattedGraphTable() << endl));
-            }
-        }*/
-
-            /*if (((graph[AdvIndexEntry][i] + 1)
-                < graph[srcIndexEntry][i]) && (0 != graph[AdvIndexEntry][i]) && (0 != graph[srcIndexEntry][i]))
-                {
-            graph[srcIndexEntry][i] = graph[AdvIndexEntry][i] + 1;
-            routingTableVector.at(i).cost = graph[srcIndexEntry][i];
-            valueChanged=true;
-            for (std::map<in_addr_t, int>::iterator it = hostToIndexMap.begin();
-                    it != (std::map<in_addr_t, int>::iterator) (hostToIndexMap.end());
-                    it++) {
-
-                if (i == it->second)
-                    routingTableVector.at(i).destination.s_addr = it->first;
-
-                if (AdvIndexEntry == it->second)
-                {
-                    routingTableVector.at(i).nextHop.s_addr = it->first;
-                    struct timeval tv;
-                    gettimeofday(&tv, NULL);
-                    routingTableVector.at(i).ttl =   tv.tv_sec + DEFAULT_TTL;
-
-                }
-
-            }
-
-        }*/
         }
     }
     logger->logDebug(SSTR("Distance vector after bellman ford"));
 
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
     //Compare and check if there is any route changes
 	for (int k = 0; k < V; k++) {
 		if (routingTableVector.at(k).cost != d[k]) {
 			routingTableVector.at(k).cost = d[k];
+
+			//Convergence to infinity time calculation
+			if (routingTableVector.at(k).cost == INFINITY_VALUE) {
+				logger->logDebug(
+						SSTR(inet_ntoa(routingTableVector.at(k).destination)<< " converged to infinity in " << tv.tv_sec-(routingTableVector.at(k).ttl-DEFAULT_TTL)));
+				nodesConverged=false;
+			}
+
+			//Convergence to infinity time calculation
+			logger->logDebug(SSTR(inet_ntoa(routingTableVector.at(k).destination)<< " value changed time since from stable is " << tv.tv_sec-startTime.tv_sec));
+			logger->logDebug(SSTR(inet_ntoa(routingTableVector.at(k).destination)<< " value changed time since ttl is " << tv.tv_sec-(routingTableVector.at(k).ttl-DEFAULT_TTL)));
 			updateTtl(k);
 			valueChanged = true;
 		}
 		logger->logDebug(SSTR(d[k]<< " "));
+	}
+
+	//Convergence to stable state time calculation
+	if(nodesConverged == true) {
+		logger->logDebug(SSTR(inet_ntoa(routingTableVector.at(0).destination) << " stablilized in " << tv.tv_sec-routingTableVector.at(0).ttl));
+		if(valueChanged) {
+			gettimeofday(&startTime, NULL);
+		}
+
 	}
     return valueChanged;
 }
