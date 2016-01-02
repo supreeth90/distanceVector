@@ -1,2 +1,53 @@
-This is just the beginning. 
-Wait n watch 
+~~~~~~~~~~~~~~~~~~~~~~~~ Distance Vector Routing based on Bellman Ford Algorithm ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+How to build ?
+$cd Release
+$make clean;make all
+
+How to run ?
+./distanceVector <config filename> <portnumber> <ttl> <infinity value> <update period for advertisments> <split-horizon boolean: true/false>
+
+Multi-threaded routing application with triggered and periodic updates: The Application implements a multi-threaded distributed asynchronous distance vector routing algorithm with support for both triggered and periodic updates. 
+
+Following are the primary characteristics : (Instructions on how to run the code are included in the sub-head - 'Main')
+
+1) Multi-threaded : 2 threads are implemented to achieve asynchronous system. Thread 1 is dedicated for periodic updates and Thread 2 receives Advertisement from other sockets, process them and send triggered updates. Mutual Exclusion is applied by using a mutex variable “rtmutex” on Routing table/Graph entries. Every time an Advertisement is received mutex lock is enabled until Bellman ford algorithm is run and routing table is updated with the final values. Also, mutex is applied when an Advertisement has to be sent until it has been sent over the socket. This enables 2 things: 
+a) Nobody can write when it is being read 
+b) Nobody can read when it is being written. 
+
+2) Graph and Routing Table data-structures: The appropriate choice for a data structure for the graph used for the purposes of distance vector algorithms used in the application was a 2-dimensional array. The rows represent the routing tables of the respective nodes as known by the current node maintaining the graph. The columns are the destinations with the cell values the costs to the destinations.
+
+The routing table data structure is a vector (as the number of nodes read from the configuration file could be variable) of components with the following attributes:
+
+in_addr destination /* address of the destination */ 
+in_addr nexthop /* address of the next hop */ 
+int Cost /* distance metric */
+long TTL /* time to live in seconds */ 
+
+typedef std::vector<RouteEntry> RouteEntryVector;/* Declaration of the RouteEntry vector */
+
+The distance-vector algorithm uses the graph to find the smallest paths to the destinations represented by the columns and updates the same in the RouteEntryVector, where the next hop and ttl information per destination is maintained.The rows in the graph also give a count to the number of vertices (nodes) distributed in the network.
+
+
+3) Main – The MainClass uses the following arguments as indicated in the problem statement and can be run as follows:
+
+./distanceVector <config filename> <portnumber: 65531> <ttl> <infinity value> <update period for advertisments> <split-horizon boolean: true/false>
+
+Also , the program can be run by using the scripts ./run1.sh for node A, run2.sh for node B and run3.sh for node C for a three node topology.  The log file – dvnode.log can be found in the root directory of a particular node. Also the running scripts can be found in the root directory. Make commands and the executable can be run from the Release directory. 
+ 
+4) Initialize : The void initialize(string fileName) and void initiaizeGraph() functions initialize the RouteEntryVector and the graph respectively. The RoutingTableVector is initialized to values read from the config file and the graph values are initialized to INFINITY_VALUE as input during the execution of the program.
+
+5)  Send_Advertisement() : The advertisement is serialized by the node and sent every period seconds and is composed of a stream of IP addresses and cost values for each other node in the topology.
+
+6) Update : The update function in the application performs the following tasks as specified in the problem statement:
+
+•	Decrements the TTL in the routing table entries by the specified amount of time as input initially. 
+•	Checks for advertisement/update messages from neighbors. Process received messages by updating edge weights in your graph. Run Bellman-Ford to recalculate your routing table. If any routing table entries change, set the TTL for that entry to the default value. 
+
+ Expired TTL : If the TTL for an entry has expired, this means that an advertisement hasn’t been received from a neighbor for multiple time windows. When a TTL expires, the node is considered unreachable, and the Cost for reaching the node is set to INFINITY_VALUE followed by :
+•	Printing of the updated routing table. 
+•	An update message is sent to the node's neighbors.
+
+7) Split Horizon : This has been implemented taking into consideration routing loops such that if A  can reach C via B it should not update this route to B as B is a part of it , in the topology A---> B ---> C
+
+8) Detecting Node Failures : If there is no periodic update from the node for 'period' seconds , the node is considered to have gone down and the cost of reaching it from neighboring nodes is updated to INFINITY_VALUE on its neighboring nodes.
